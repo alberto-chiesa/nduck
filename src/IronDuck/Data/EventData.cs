@@ -1,6 +1,6 @@
 using Mono.Cecil;
 
-namespace IronDuck.Data
+namespace NDuck.Data
 {
     /// <summary>
     /// Class containing every information related to an Event

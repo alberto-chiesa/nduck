@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 
-namespace IronDuck.XmlDoc
+namespace NDuck.XmlDoc
 {
     /// <summary>
     /// Class representing a &lt;member&gt; xml tag,

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace IronDuck.XmlDoc
+namespace NDuck.XmlDoc
 {
     /// <summary>
     /// Class representing

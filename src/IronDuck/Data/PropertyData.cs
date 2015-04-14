@@ -1,4 +1,4 @@
-﻿namespace IronDuck.Data
+﻿namespace NDuck.Data
 {
     /// <summary>
     /// Class containing every information related to a Property

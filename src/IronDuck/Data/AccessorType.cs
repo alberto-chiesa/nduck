@@ -1,4 +1,4 @@
-namespace IronDuck.Data
+namespace NDuck.Data
 {
     /// <summary>
     /// Accessors defined for types, properties, methods, etc.

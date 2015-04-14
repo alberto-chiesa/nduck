@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace IronDuck
+namespace NDuck
 {
     /// <summary>
     /// Static helper class used to log messages to a common output

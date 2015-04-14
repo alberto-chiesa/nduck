@@ -5,9 +5,9 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using IronDuck.Data;
+using NDuck.Data;
 
-namespace IronDuck.XmlDoc
+namespace NDuck.XmlDoc
 {
     /// <summary>
     /// Class responsible for

@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace IronDuck.TestData {
+namespace NDuck.TestData {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace IronDuck.TestData {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("IronDuck.TestData.XmlTestDocs", typeof(XmlTestDocs).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("NDuck.TestData.XmlTestDocs", typeof(XmlTestDocs).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;

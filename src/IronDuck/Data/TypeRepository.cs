@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Mono.Cecil;
 
-namespace IronDuck.Data
+namespace NDuck.Data
 {
     /// <summary>
     /// Class responsible for containing

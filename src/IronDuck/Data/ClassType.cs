@@ -1,4 +1,4 @@
-namespace IronDuck.Data
+namespace NDuck.Data
 {
     /// <summary>
     /// Enumerates the available categories of

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace IronDuck.Data
+namespace NDuck.Data
 {
     /// <summary>
     /// Class containing every information related to a Property

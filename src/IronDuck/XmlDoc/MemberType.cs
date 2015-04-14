@@ -1,4 +1,4 @@
-﻿namespace IronDuck.XmlDoc
+﻿namespace NDuck.XmlDoc
 {
     /// <summary>
     /// Available Types for an Xml Documentation

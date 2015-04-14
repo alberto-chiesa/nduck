@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using IronDuck.Data;
-using IronDuck.TestData;
+using NDuck.Data;
+using NDuck.TestData;
 using NUnit.Framework;
 
-namespace IronDuck.XmlDoc
+namespace NDuck.XmlDoc
 {
     [TestFixture]
     public class XmlProcessorTest

@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronDuck", "IronDuck\IronDuck.csproj", "{60485E8E-A55B-4C1A-8F40-C0BE4C71BC65}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NDuck", "IronDuck\NDuck.csproj", "{60485E8E-A55B-4C1A-8F40-C0BE4C71BC65}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronDuck.Test", "IronDuck.Test\IronDuck.Test.csproj", "{1283E92D-E2A3-4E9A-9344-7A9E667E5A11}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NDuck.Test", "IronDuck.Test\NDuck.Test.csproj", "{1283E92D-E2A3-4E9A-9344-7A9E667E5A11}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
