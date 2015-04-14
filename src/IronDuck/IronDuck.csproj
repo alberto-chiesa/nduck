@@ -34,6 +34,19 @@
     <DocumentationFile>bin\Release\IronDuck.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Mono.Cecil">
+      <HintPath>..\packages\Mono.Cecil.0.9.5.4\lib\net40\Mono.Cecil.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil.Mdb">
+      <HintPath>..\packages\Mono.Cecil.0.9.5.4\lib\net40\Mono.Cecil.Mdb.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil.Pdb">
+      <HintPath>..\packages\Mono.Cecil.0.9.5.4\lib\net40\Mono.Cecil.Pdb.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Mono.Cecil.Rocks">
+      <HintPath>..\packages\Mono.Cecil.0.9.5.4\lib\net40\Mono.Cecil.Rocks.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -43,15 +56,26 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Data\MemberType.cs" />
-    <Compile Include="Data\XmlDocumentation.cs" />
-    <Compile Include="Data\XmlMemberDoc.cs" />
+    <Compile Include="Data\AccessorType.cs" />
+    <Compile Include="Data\ClassType.cs" />
+    <Compile Include="Data\EventData.cs" />
+    <Compile Include="Data\FieldData.cs" />
+    <Compile Include="Data\MethodData.cs" />
+    <Compile Include="Data\PropertyData.cs" />
+    <Compile Include="Data\TypeData.cs" />
+    <Compile Include="Data\TypeRepository.cs" />
+    <Compile Include="Logger.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="XmlDoc\MemberType.cs" />
+    <Compile Include="XmlDoc\XmlDocumentation.cs" />
+    <Compile Include="XmlDoc\XmlExtensions.cs" />
+    <Compile Include="XmlDoc\XmlMemberDoc.cs" />
     <Compile Include="XmlDoc\XmlProcessor.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Output\" />

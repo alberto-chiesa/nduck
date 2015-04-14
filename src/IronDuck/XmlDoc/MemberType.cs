@@ -1,4 +1,4 @@
-﻿namespace IronDuck.Data
+﻿namespace IronDuck.XmlDoc
 {
     /// <summary>
     /// Available Types for an Xml Documentation

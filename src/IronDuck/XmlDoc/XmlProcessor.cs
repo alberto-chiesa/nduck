@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using IronDuck.Data;
@@ -35,9 +36,10 @@ namespace IronDuck.XmlDoc
                 if (docNode == null)
                     throw new InvalidOperationException(@"There was an error reading the provided XML Documentation file: no <doc> node was found.");
 
-                result.AssemblyName = ReadName(docNode);
+                result.AssemblyName = ReadAssemblyName(docNode);
 
-                result.Members = docNode.Element("members").Elements("member").Select(ProcessMember).ToList();
+                result.Members = docNode.Element("members").Elements("member")
+                    .Select(memberXml => new XmlMemberDoc(memberXml)).ToList();
 
                 return result;
             }
@@ -47,25 +49,15 @@ namespace IronDuck.XmlDoc
             }
         }
 
-        private static string ReadName(XElement docNode)
+        private static string ReadAssemblyName(XElement docNode)
         {
             var assemblyNode = docNode.Element("assembly");
-            if (assemblyNode != null)
-            {
-                var theName = assemblyNode.Element("name");
-                if (theName != null) return theName.Value;
-            }
-
-            return null;
-        }
-
-        private XmlMemberDoc ProcessMember(XElement arg)
-        {
-            var member = new XmlMemberDoc();
-
-            member.ReadName(arg.Attribute("name").Value);
-
-            return member;
+            
+            if (assemblyNode == null) return null;
+            
+            var theName = assemblyNode.Element("name");
+            
+            return theName != null ? theName.Value : null;
         }
     }
 }

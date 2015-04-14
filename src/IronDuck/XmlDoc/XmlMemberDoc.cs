@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Xml.Linq;
 
-namespace IronDuck.Data
+namespace IronDuck.XmlDoc
 {
     /// <summary>
     /// Class representing a &lt;member&gt; xml tag,
@@ -27,6 +29,62 @@ namespace IronDuck.Data
         /// Represents the type of the member
         /// </summary>
         public MemberType Type { get; set; }
+
+        /// <summary>
+        /// Summary tag.
+        /// </summary>
+        public XElement SummaryXml { get; set; }
+
+        /// <summary>
+        /// Summary tag.
+        /// </summary>
+        public XElement Example { get; set; }
+
+        /// <summary>
+        /// Remarks tag.
+        /// </summary>
+        public XElement RemarksXml { get; set; }
+
+        /// <summary>
+        /// A List of Param tags.
+        /// </summary>
+        public List<XElement> ParamXmlList { get; set; }
+
+        /// <summary>
+        /// Contains the list of Exception tags
+        /// </summary>
+        public List<XElement> ExceptionList { get; set; }
+
+        /// <summary>
+        /// Contains the list of Exception tags
+        /// </summary>
+        public XElement ValueXml { get; set; }
+
+        /// <summary>
+        /// Default Constructor
+        /// </summary>
+        public XmlMemberDoc()
+        {
+            
+        }
+
+        /// <summary>
+        /// Extracts information from an Xml Element
+        /// </summary>
+        /// <param name="memberXml">
+        /// </param>
+        /// <returns></returns>
+        public XmlMemberDoc(XElement memberXml)
+        {
+            ReadName(memberXml.Attribute("name").Value);
+
+            SummaryXml = memberXml.Element("summary");
+            RemarksXml = memberXml.Element("remarks");
+            RemarksXml = memberXml.Element("example");
+            ValueXml = memberXml.Element("value");
+            ParamXmlList = memberXml.Elements("params").ToList();
+            ExceptionList = memberXml.Elements("exception").ToList();
+        }
 
         /// <summary>
         /// Reads the name xml attribute value and converts
