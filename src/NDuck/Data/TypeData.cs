@@ -121,9 +121,15 @@ namespace NDuck.Data
 
             BaseClass = typeDefinition.BaseType.FullName;
             InterfacesImplemented.AddRange(typeDefinition.Interfaces.Select(i => i.FullName));
+            
             if (typeDefinition.HasEvents)
                 Events.AddRange(typeDefinition.Events.Select(e => new EventData(e)));
 
+            if (typeDefinition.HasMethods)
+                Methods.AddRange(typeDefinition.Methods.Select(m => new MethodData(m)));
+
+            if (typeDefinition.HasFields)
+                Fields.AddRange(typeDefinition.Fields.Select(f => new FieldData(f)));
         }
 
         /// <summary>
