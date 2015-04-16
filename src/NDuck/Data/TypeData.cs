@@ -26,6 +26,11 @@ namespace NDuck.Data
         public String Name { get; set; }
 
         /// <summary>
+        /// Stores the full name of this type.
+        /// </summary>
+        public String FullName { get; set; }
+
+        /// <summary>
         /// The Accessor specified for this Type.
         /// </summary>
         public AccessorType Accessor { get; set; }
@@ -93,6 +98,11 @@ namespace NDuck.Data
         public List<MethodData> Methods { get; set; }
 
         /// <summary>
+        /// List of the type parameters of this Type.
+        /// </summary>
+        public List<GenericParameterData> GenericParameters { get; set; }
+
+        /// <summary>
         /// Default constructor
         /// </summary>
         public TypeData()
@@ -102,6 +112,7 @@ namespace NDuck.Data
             Properties = new List<PropertyData>();
             Methods = new List<MethodData>();
             InterfacesImplemented = new List<string>();
+            GenericParameters = new List<GenericParameterData>();
         }
 
         /// <summary>
@@ -111,6 +122,7 @@ namespace NDuck.Data
         public TypeData(TypeDefinition typeDefinition) : this()
         {
             Name = typeDefinition.Name;
+            FullName = GetFullName(typeDefinition);
             Namespace = typeDefinition.Namespace;
             AssemblyName = typeDefinition.Module.Assembly.Name.Name;
             IsSealed = typeDefinition.IsSealed;
@@ -121,7 +133,10 @@ namespace NDuck.Data
 
             BaseClass = typeDefinition.BaseType.FullName;
             InterfacesImplemented.AddRange(typeDefinition.Interfaces.Select(i => i.FullName));
-            
+
+            if (typeDefinition.HasGenericParameters)
+                GenericParameters.AddRange(typeDefinition.GenericParameters.Select(gp => new GenericParameterData(gp)));
+
             if (typeDefinition.HasEvents)
                 Events.AddRange(typeDefinition.Events.Select(e => new EventData(e)));
 
@@ -130,6 +145,9 @@ namespace NDuck.Data
 
             if (typeDefinition.HasFields)
                 Fields.AddRange(typeDefinition.Fields.Select(f => new FieldData(f)));
+
+            if (typeDefinition.HasProperties)
+                Properties.AddRange(typeDefinition.Properties.Select(p => new PropertyData(p)));
         }
 
         /// <summary>
@@ -166,5 +184,73 @@ namespace NDuck.Data
 
             return AccessorType.Internal;
         }
+
+        /// <summary>
+        /// Returns a method, specified by name.
+        /// </summary>
+        /// <param name="name">
+        /// The name of the method to be retrieved.
+        /// Can be either the simple name, or the full name
+        /// including namespace and param types.
+        /// </param>
+        /// <returns>A <see cref="NDuck.Data.MethodData"/> instance.</returns>
+        public MethodData GetMethod(String name)
+        {
+            return Methods.First(m => m.Name == name || m.FullName == name);
+        }
+
+        /// <summary>
+        /// Returns a list of method overloads, specified by name.
+        /// </summary>
+        /// <param name="name">The name of the method to be retrieved.</param>
+        /// <returns>A <see cref="NDuck.Data.MethodData"/> instance.</returns>
+        public List<MethodData> GetMethods(String name)
+        {
+            return Methods.Where(m => m.Name == name).ToList();
+        }
+
+        /// <summary>
+        /// Returns a formatted full name of the type.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static String GetFullName(TypeDefinition type)
+        {
+            if (type == null) throw new ArgumentNullException("type");
+            
+            return type.FullName;
+        }
+
+        /// <summary>
+        /// Returns a string representation of the type.
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return FullName;
+        }
+
+    }
+
+    /// <summary>
+    /// Class used to store data recovered
+    /// by Cecil about generic type parameters.
+    /// </summary>
+    public class GenericParameterData
+    {
+        /// <summary>
+        /// Name of the generic parameter.
+        /// </summary>
+        public String Name { get; set; }
+
+        /// <summary>
+        /// Default constructor.
+        /// </summary>
+        /// <param name="gp"></param>
+        public GenericParameterData(GenericParameter gp)
+        {
+            Name = gp.Name;
+        }
+
     }
 }

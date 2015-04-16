@@ -5,6 +5,8 @@ using Mono.Cecil;
 
 namespace NDuck.Data
 {
+
+    
     /// <summary>
     /// Class containing every information related to a Property
     /// </summary>
@@ -14,6 +16,11 @@ namespace NDuck.Data
         /// The name of the method.
         /// </summary>
         public String Name { get; set; }
+
+        /// <summary>
+        /// The na
+        /// </summary>
+        public String FullName { get; set; }
 
         /// <summary>
         /// The Accessor specified for this Method.
@@ -26,9 +33,22 @@ namespace NDuck.Data
         public String ReturnType { get; set; }
 
         /// <summary>
-        /// Represents a list of the parameters to be passed to this method
+        /// Represents a list of the parameters to be passed to this method.
         /// </summary>
         public List<ParameterData> Parameters { get; set; }
+
+        /// <summary>
+        /// True if the method has parameters.
+        /// </summary>
+        public Boolean HasParameters
+        {
+            get { return Parameters.Count > 0; }
+        }
+
+        /// <summary>
+        /// True if this method is a constructor.
+        /// </summary>
+        public Boolean IsConstructor { get; set; }
 
         /// <summary>
         /// The text of the documentation summary
@@ -56,7 +76,7 @@ namespace NDuck.Data
         }
 
         /// <summary>
-        /// Default Constructor
+        /// Default Constructor.
         /// </summary>
         /// <param name="method">
         /// The Cecil reflected method definition.
@@ -67,9 +87,11 @@ namespace NDuck.Data
             if (method == null) throw new ArgumentNullException("method");
             
             Name = method.Name;
+            FullName = method.FullName;
             Accessor = ReadAccessor(method);
             ReturnType = method.ReturnType.FullName;
-            
+            IsConstructor = method.IsConstructor;
+
             if (method.HasParameters)
                 Parameters.AddRange(method.Parameters.Select(p => new ParameterData(p)));
         }
@@ -82,69 +104,28 @@ namespace NDuck.Data
         /// <exception cref="System.InvalidOperationException">
         /// when the accessor type is not resolvable.
         /// </exception>
-        private AccessorType ReadAccessor(MethodDefinition method)
+        public static AccessorType ReadAccessor(MethodDefinition method)
         {
             if (method.IsPublic) return AccessorType.Public;
             if (method.IsPrivate) return AccessorType.Private;
             if (method.IsFamily) return AccessorType.Protected;
             if (method.IsFamilyOrAssembly) return AccessorType.ProtectedInternal;
-            if (method.IsFamilyAndAssembly) return AccessorType.Internal;
+            if (method.IsAssembly) return AccessorType.Internal;
 
-            throw new InvalidOperationException("Could not determine the Accessor for method " + method.FullName);
+            return AccessorType.Invalid;
+            //throw new InvalidOperationException("Could not determine the Accessor for method " + method.FullName);
         }
 
         /// <summary>
-        /// Class containing informations regarding a
-        /// method parameter.
+        /// Returns a string representation of the Method.
         /// </summary>
-        public class ParameterData
+        /// <returns></returns>
+        public override string ToString()
         {
-            /// <summary>
-            /// Default constructor
-            /// </summary>
-            public ParameterData()
-            {
-            }
-
-            /// <summary>
-            /// Default constructor
-            /// </summary>
-            /// <param name="parameterDefinition">
-            /// The Cecil parameter definition data.
-            /// </param>
-            public ParameterData(ParameterDefinition parameterDefinition)
-            {
-                Name = parameterDefinition.Name;
-                Type = parameterDefinition.ParameterType.FullName;
-                IsOut = parameterDefinition.IsOut;
-                IsRef = parameterDefinition.ParameterType.IsByReference;
-            }
-
-            /// <summary>
-            /// The name of the parameter.
-            /// </summary>
-            public String Name { get; set; }
-
-            /// <summary>
-            /// The full name of the Type of the parameter.
-            /// </summary>
-            public String Type { get; set; }
-
-            /// <summary>
-            /// True if the parameter is configured as Out.
-            /// </summary>
-            public Boolean IsOut { get; set; }
-
-            /// <summary>
-            /// True if the parameter is configured as Out.
-            /// </summary>
-            public Boolean IsRef { get; set; }
-
-            /// <summary>
-            /// Description of the parameter, coming from
-            /// Xml Doc file.
-            /// </summary>
-            public String ParameterDescription { get; set; }
+            return FullName;
         }
+
     }
+
+
 }

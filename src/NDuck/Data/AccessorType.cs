@@ -6,9 +6,11 @@ namespace NDuck.Data
     public enum AccessorType
     {
         /// <summary>
-        /// Internal accessor
+        /// Identified elements that are not existing or
+        /// invalid. Usually identifies non existing getters or setters
+        /// methods of analyzed properties.
         /// </summary>
-        Internal,
+        Invalid,
         /// <summary>
         /// Private Accessor
         /// </summary>
@@ -18,7 +20,11 @@ namespace NDuck.Data
         /// </summary>
         Protected,
         /// <summary>
-        /// ProtectedInternal accessor type
+        /// Internal accessor
+        /// </summary>
+        Internal,
+        /// <summary>
+        /// Protected Internal accessor
         /// </summary>
         ProtectedInternal,
         /// <summary>

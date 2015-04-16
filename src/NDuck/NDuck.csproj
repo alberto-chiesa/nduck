@@ -61,6 +61,7 @@
     <Compile Include="Data\EventData.cs" />
     <Compile Include="Data\FieldData.cs" />
     <Compile Include="Data\MethodData.cs" />
+    <Compile Include="Data\ParameterData.cs" />
     <Compile Include="Data\PropertyData.cs" />
     <Compile Include="Data\TypeData.cs" />
     <Compile Include="Data\TypeRepository.cs" />

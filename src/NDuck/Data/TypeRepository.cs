@@ -21,11 +21,17 @@ namespace NDuck.Data
         public Dictionary<String, NamespaceData> Namespaces { get; private set; }
 
         /// <summary>
+        /// Stores an index of every type in the repository
+        /// </summary>
+        private Dictionary<String, TypeData> _typesIndex { get; set; }
+
+        /// <summary>
         /// Default constructor
         /// </summary>
         public TypeRepository()
         {
             Namespaces = new Dictionary<string, NamespaceData>();
+            _typesIndex = new Dictionary<string, TypeData>();
         }
 
         /// <summary>
@@ -39,11 +45,8 @@ namespace NDuck.Data
             try
             {
                 var module = ModuleDefinition.ReadModule(fullPath);
-                
-                foreach (var t in module.Types)
-                {
-                    LoadType(t);
-                }
+
+                foreach (var t in module.Types) LoadType(t);
             }
             catch (Exception e)
             {
@@ -58,7 +61,28 @@ namespace NDuck.Data
 
             var ns = GetNamespace(typeDefinition.Namespace);
 
-            ns.Types.Add(typeDefinition.Name, new TypeData(typeDefinition));
+            var type = new TypeData(typeDefinition);
+            ns.Types.Add(typeDefinition.Name, type);
+            _typesIndex[typeDefinition.Namespace + "." + type.Name] = type;
+        }
+
+        /// <summary>
+        /// Returns the requested type information,
+        /// or throws in case of errors.
+        /// </summary>
+        /// <param name="fullName">
+        /// The name of the type, including the namespace.
+        /// </param>
+        /// <returns></returns>
+        public TypeData GetTypeData(String fullName)
+        {
+            if (String.IsNullOrEmpty(fullName))
+                throw new ArgumentNullException("fullName");
+
+            if (!_typesIndex.ContainsKey(fullName))
+                throw new ArgumentOutOfRangeException("fullName", "The requested type " + fullName + " was not found");
+
+            return _typesIndex[fullName];
         }
 
         /// <summary>

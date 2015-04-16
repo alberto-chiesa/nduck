@@ -49,6 +49,7 @@
   <ItemGroup>
     <Compile Include="Data\TypeRepositoryTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestClasses\PublicType1.cs" />
     <Compile Include="TestData\XmlTestDocs.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -61,7 +62,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\IronDuck\NDuck.csproj">
+    <ProjectReference Include="..\NDuck\NDuck.csproj">
       <Project>{60485e8e-a55b-4c1a-8f40-c0be4c71bc65}</Project>
       <Name>NDuck</Name>
     </ProjectReference>
