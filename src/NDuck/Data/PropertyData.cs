@@ -1,17 +1,25 @@
 ﻿using System;
+using System.Xml.Linq;
 using Mono.Cecil;
+using NDuck.Data.Enum;
+using NDuck.XmlDoc;
 
 namespace NDuck.Data
 {
     /// <summary>
     /// Class containing every information related to a Property
     /// </summary>
-    public class PropertyData
+    public class PropertyData : IDocumentable
     {
         /// <summary>
         /// The name of the property.
         /// </summary>
         public string Name { get; set; }
+
+        /// <summary>
+        /// The full name of the property.
+        /// </summary>
+        public string FullName { get; set; }
 
         /// <summary>
         /// The Accessor defined for the property.
@@ -44,6 +52,24 @@ namespace NDuck.Data
         public Boolean HasSetter { get; set; }
 
         /// <summary>
+        /// Contains the Example documentation
+        /// for this property.
+        /// </summary>
+        public XElement Example { get; set; }
+
+        /// <summary>
+        /// Contains the Remarks documentation
+        /// for this Property
+        /// </summary>
+        public XElement Remarks { get; set; }
+
+        /// <summary>
+        /// Contains the Summary documentation
+        /// for this property
+        /// </summary>
+        public XElement Summary { get; set; }
+
+        /// <summary>
         /// Default Constructor.
         /// </summary>
         public PropertyData()
@@ -57,11 +83,24 @@ namespace NDuck.Data
         /// </param>
         public PropertyData(PropertyDefinition property)
         {
+            if (property == null) throw new ArgumentNullException("property");
+
             Name = property.Name;
+            FullName = GetFullName(property);
             Type = property.PropertyType.FullName;
             ReadAccessors(property);
             HasGetter = property.GetMethod != null;
             HasSetter = property.SetMethod != null;
+        }
+
+        /// <summary>
+        /// Format the property's full name.
+        /// </summary>
+        /// <param name="property">A property definition reflected by Cecil.</param>
+        /// <returns>The property formatted name.</returns>
+        public static string GetFullName(PropertyDefinition property)
+        {
+            return String.Concat(TypeData.GetFullName(property.DeclaringType), ".", property.Name);
         }
 
         /// <summary>
@@ -75,6 +114,13 @@ namespace NDuck.Data
             GetAccessor = property.GetMethod != null ? MethodData.ReadAccessor(property.GetMethod) : AccessorType.Invalid;
             SetAccessor = property.SetMethod != null ? MethodData.ReadAccessor(property.SetMethod) : AccessorType.Invalid;
             Accessor = GetAccessor >= SetAccessor ? GetAccessor : SetAccessor;
+        }
+
+        public void LoadDocumentation(XmlMemberDoc doc)
+        {
+            Summary = doc.SummaryXml;
+            Remarks = doc.RemarksXml;
+            Example = doc.ExampleXml;
         }
     }
 }

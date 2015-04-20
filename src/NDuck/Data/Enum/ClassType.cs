@@ -1,4 +1,4 @@
-namespace NDuck.Data
+namespace NDuck.Data.Enum
 {
     /// <summary>
     /// Enumerates the available categories of

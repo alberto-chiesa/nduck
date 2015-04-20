@@ -1,14 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml.Linq;
 using Mono.Cecil;
+using NDuck.Data.Enum;
+using NDuck.XmlDoc;
 
 namespace NDuck.Data
 {
     /// <summary>
     /// Class containing every information related to a Type
     /// </summary>
-    public class TypeData
+    public class TypeData : IDocumentable
     {
         /// <summary>
         /// The name of the Assembly this type is defined in
@@ -64,18 +67,18 @@ namespace NDuck.Data
         /// The text of the documentation summary
         /// related to this type.
         /// </summary>
-        public String SummaryText { get; set; }
+        public XElement Summary { get; set; }
 
         /// <summary>
         /// The text of the documentation remarks section,
         /// related to this type.
         /// </summary>
-        public String RemarksText { get; set; }
+        public XElement Remarks { get; set; }
 
         /// <summary>
         /// The text for the Example section.
         /// </summary>
-        public String ExampleText { get; set; }
+        public XElement Example { get; set; }
 
         /// <summary>
         /// List of Events registered on this type.
@@ -131,7 +134,7 @@ namespace NDuck.Data
             Accessor = ReadAccessor(typeDefinition);
             ClassType = ReadClassType(typeDefinition);
 
-            BaseClass = typeDefinition.BaseType.FullName;
+            BaseClass = typeDefinition.BaseType != null ? typeDefinition.BaseType.FullName : null;
             InterfacesImplemented.AddRange(typeDefinition.Interfaces.Select(i => i.FullName));
 
             if (typeDefinition.HasGenericParameters)
@@ -214,11 +217,27 @@ namespace NDuck.Data
         /// </summary>
         /// <param name="type"></param>
         /// <returns></returns>
-        public static String GetFullName(TypeDefinition type)
+        /// <remarks>
+        /// A type name is composed by 4 segments:
+        ///   * the namespace
+        ///   * the type name, stripped of any generic reference
+        ///   * in case of generic types, a '`' followed by the number of parameters
+        ///   * in case of generic instance types, a &lt;> enclosed list of type arguments
+        /// </remarks>
+        public static string GetFullName(TypeReference type)
         {
             if (type == null) throw new ArgumentNullException("type");
-            
-            return type.FullName;
+
+            var genericInstanceType = type as GenericInstanceType;
+
+            var boundGenericTypes = (genericInstanceType != null) ?
+                genericInstanceType.GenericArguments.Select(GetFullName) :
+                null;
+
+            return String.Concat(type.Namespace, ".",
+                new String(type.Name.TakeWhile(c => c != '`').ToArray()),
+                (type.GenericParameters.Count > 0 ? "`" + type.GenericParameters.Count : ""),
+                boundGenericTypes != null ? "<" + String.Join(",", boundGenericTypes) + ">" : "");
         }
 
         /// <summary>
@@ -230,27 +249,13 @@ namespace NDuck.Data
             return FullName;
         }
 
-    }
-
-    /// <summary>
-    /// Class used to store data recovered
-    /// by Cecil about generic type parameters.
-    /// </summary>
-    public class GenericParameterData
-    {
-        /// <summary>
-        /// Name of the generic parameter.
-        /// </summary>
-        public String Name { get; set; }
-
-        /// <summary>
-        /// Default constructor.
-        /// </summary>
-        /// <param name="gp"></param>
-        public GenericParameterData(GenericParameter gp)
+        public void LoadDocumentation(XmlMemberDoc doc)
         {
-            Name = gp.Name;
+            Summary = doc.SummaryXml;
+            Remarks = doc.RemarksXml;
+            Example = doc.ExampleXml;
+            
+            // TODO implementing generic type read.
         }
-
     }
 }

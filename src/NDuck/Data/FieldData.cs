@@ -1,18 +1,25 @@
 ﻿using System;
 using System.Linq;
 using Mono.Cecil;
+using NDuck.Data.Enum;
+using NDuck.XmlDoc;
 
 namespace NDuck.Data
 {
     /// <summary>
     /// Class containing every information related to a Field
     /// </summary>
-    public class FieldData
+    public class FieldData : IDocumentable
     {
         /// <summary>
         /// Contains the name of the property
         /// </summary>
         public string Name { get; set; }
+
+        /// <summary>
+        /// Contains the full name of the property
+        /// </summary>
+        public string FullName { get; set; }
 
         /// <summary>
         /// Contains the full name of the type
@@ -56,6 +63,7 @@ namespace NDuck.Data
         public FieldData(FieldDefinition field)
         {
             Name = field.Name;
+            FullName = GetFullName(field);
             Type = field.FieldType.FullName;
             Accessor = GetAccessor(field);
             IsStatic = field.IsStatic;
@@ -64,10 +72,20 @@ namespace NDuck.Data
         }
 
         /// <summary>
+        /// Formats the field's full name.
+        /// </summary>
+        /// <param name="field">A field definition reflected by Cecil.</param>
+        /// <returns>The field's formatted name.</returns>
+        public static string GetFullName(FieldDefinition field)
+        {
+            return String.Concat(TypeData.GetFullName(field.DeclaringType), ".", field.Name);
+        }
+
+        /// <summary>
         /// Reads the accessor for the current method.
         /// </summary>
         /// <param name="field">The field definition as read by Cecil.</param>
-        /// <returns>A <see cref="NDuck.Data.AccessorType"/> instance.</returns>
+        /// <returns>A <see cref="AccessorType"/> instance.</returns>
         /// <exception cref="System.InvalidOperationException">
         /// when the accessor type is not resolvable.
         /// </exception>
@@ -80,6 +98,11 @@ namespace NDuck.Data
             if (field.IsAssembly) return AccessorType.Internal;
 
             throw new InvalidOperationException("Could not determine the Accessor for field " + field.FullName);
+        }
+
+        public void LoadDocumentation(XmlMemberDoc doc)
+        {
+            
         }
     }
 }

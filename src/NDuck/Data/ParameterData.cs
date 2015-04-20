@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Xml.Linq;
 using Mono.Cecil;
 
 namespace NDuck.Data
@@ -26,9 +27,14 @@ namespace NDuck.Data
         public ParameterData(ParameterDefinition parameterDefinition)
         {
             Name = parameterDefinition.Name;
-            Type = parameterDefinition.ParameterType.FullName;
+            Type = GetTypeName(parameterDefinition);
             IsOut = parameterDefinition.IsOut;
             IsRef = parameterDefinition.ParameterType.IsByReference;
+        }
+
+        private static string GetTypeName(ParameterDefinition parameterDefinition)
+        {
+            return TypeData.GetFullName(parameterDefinition.ParameterType);
         }
 
         /// <summary>
@@ -55,6 +61,6 @@ namespace NDuck.Data
         /// Description of the parameter, coming from
         /// Xml Doc file.
         /// </summary>
-        public String ParameterDescription { get; set; }
+        public XElement ParameterDescription { get; set; }
     }
 }

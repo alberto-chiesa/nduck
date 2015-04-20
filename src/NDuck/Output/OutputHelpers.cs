@@ -6,14 +6,33 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
-namespace NDuck.XmlDoc
+namespace NDuck.Output
 {
     /// <summary>
-    /// Utility Class containing methods used for Xml
-    /// data extraction and manipulation
+    /// Contains various helpers to be used
+    /// for documentation data manipulation 
+    /// during the output phase.
     /// </summary>
-    public static class XmlExtensions
+    public static class OutputHelpers
     {
+        /// <summary>
+        /// Strips code documentation tags
+        /// from the passed in <see cref="System.Xml.Linq.XElement"/>
+        /// object instance.
+        /// </summary>
+        /// <param name="tag">
+        /// An xml element (e.g. a summary tags content which will be
+        /// stripped of every extraneous content.
+        /// </param>
+        /// <returns>
+        /// An unindented string representation, with every doc tag
+        /// replaced with a corresponding representation.
+        /// </returns>
+        public static String StripDocTags(this XElement tag)
+        {
+            return null;
+        }
+
         private static readonly Regex RowSplit = new Regex("\r\n|\r|\n");
 
         private static readonly Regex IndentWhiteSpace = new Regex("( |\t)*");

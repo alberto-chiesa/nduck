@@ -1,31 +1,57 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NDuck.Data;
+using NDuck.Output;
 using NDuck.TestData;
 using NUnit.Framework;
 
 namespace NDuck.XmlDoc
 {
+    /// <summary>
+    /// 
+    /// </summary>
     [TestFixture]
     public class XmlProcessorTest
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public XmlProcessor Proc { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public XmlDocumentation DocLog4Net { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public XmlDocumentation DocNh { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        public XmlDocumentation DocSelf { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         [TestFixtureSetUp]
         public void SetupProcessor()
         {
             Proc = new XmlProcessor();
             DocLog4Net = Proc.ProcessXml(XmlTestDocs.log4net);
             DocNh = Proc.ProcessXml(XmlTestDocs.NHibernate);
+            DocSelf = Proc.ProcessXml(File.ReadAllText(Path.Combine(".", "NDuck.Test.xml"), Encoding.UTF8));
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         [Test]
         public void TestAssemblyNameReading()
         {
@@ -34,6 +60,9 @@ namespace NDuck.XmlDoc
             Assert.That(DocNh.AssemblyName, Is.EqualTo("NHibernate"));
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         [Test]
         public void TestMemberNameRead()
         {
@@ -47,41 +76,6 @@ namespace NDuck.XmlDoc
             Assert.That(DocNh.Members[0].Name, Is.EqualTo("NHibernate.Action.BulkOperationCleanupAction"));
             Assert.That(DocNh.Members[0].Type, Is.EqualTo(MemberType.Type));
             Assert.That(DocNh.Members[0].SummaryXml, Is.Not.Null);
-        }
-
-        [Test]
-        public void TestUnindentXmlValue()
-        {
-            var expected = "Implementation of BulkOperationCleanupAction.";
-
-            var actual = DocNh.Members[0].SummaryXml.ValueUnindented();
-
-            Assert.That(actual, Is.EqualTo(expected));
-
-            expected = "An operation which may be scheduled for later execution.\n" +
-                "Usually, the operation is a database insert/update/delete,\n" +
-                "together with required second-level cache management.";
-            actual = DocNh.Members[1].SummaryXml.ValueUnindented();
-
-            Assert.That(actual, Is.EqualTo(expected));
-
-            expected = "Called before executing any actions";
-            actual = DocNh.Members[2].SummaryXml.ValueUnindented();
-
-            Assert.That(actual, Is.EqualTo(expected));
-
-            var member = DocNh.Members.First(m => m.Name == "NHibernate.Action.DelayedPostInsertIdentifier");
-            expected = "Acts as a stand-in for an entity identifier which is supposed to be\n" +
-                       "generated on insert (like an IDENTITY column) where the insert needed to\n" +
-                       "be delayed because we were outside a transaction when the persist\n" +
-                       "occurred (save currently still performs the insert).\n" +
-                       "\n" +
-                       "The stand-in is only used within the see cref=\"NHibernate.Engine.PersistenceContext\"\n" +
-                       "in order to distinguish one instance from another; it is never injected into\n" +
-                       "the entity instance or returned to the client...";
-            actual = member.SummaryXml.ValueUnindented();
-
-            Assert.That(actual, Is.EqualTo(expected));
         }
     }
 }

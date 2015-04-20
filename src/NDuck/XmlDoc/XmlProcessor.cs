@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Xml.Linq;
-using NDuck.Data;
 
 namespace NDuck.XmlDoc
 {
@@ -38,15 +37,27 @@ namespace NDuck.XmlDoc
 
                 result.AssemblyName = ReadAssemblyName(docNode);
 
-                result.Members = docNode.Element("members").Elements("member")
-                    .Select(memberXml => new XmlMemberDoc(memberXml)).ToList();
+                result.Members = ReadMembers(docNode);
 
                 return result;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 throw;
             }
+        }
+
+        private static List<XmlMemberDoc> ReadMembers(XElement docNode)
+        {
+            var members = docNode.Element("members");
+
+            if (members == null)
+            {
+                Logger.WriteLine(ConsoleColor.DarkYellow, "Could not find members tag in the provided xml file."); 
+                return new List<XmlMemberDoc>();
+            }
+
+            return members.Elements("member").Select(memberXml => new XmlMemberDoc(memberXml)).ToList();
         }
 
         private static string ReadAssemblyName(XElement docNode)
@@ -58,6 +69,30 @@ namespace NDuck.XmlDoc
             var theName = assemblyNode.Element("name");
             
             return theName != null ? theName.Value : null;
+        }
+
+        /// <summary>
+        /// Processes the passed in xml document,
+        /// extracting the relevant information.
+        /// </summary>
+        /// <param name="xmlDocumentationFilePath">
+        /// A path for the xml file to be read.
+        /// </param>
+        /// <returns>
+        /// A ready to use documentation object.
+        /// </returns>
+        public static XmlDocumentation ReadXmlDocumentation(string xmlDocumentationFilePath)
+        {
+            if (xmlDocumentationFilePath == null) throw new ArgumentNullException("xmlDocumentationFilePath");
+
+            if (!File.Exists(xmlDocumentationFilePath))
+                throw new InvalidOperationException("The xml documentation file " + xmlDocumentationFilePath + " was not found.");
+
+            var xml = File.ReadAllText(xmlDocumentationFilePath, Encoding.UTF8);
+
+            var proc = new XmlProcessor();
+            var xmlDocumentation = proc.ProcessXml(xml);
+            return xmlDocumentation;
         }
     }
 }

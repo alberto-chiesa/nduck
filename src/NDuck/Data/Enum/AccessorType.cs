@@ -1,4 +1,4 @@
-namespace NDuck.Data
+namespace NDuck.Data.Enum
 {
     /// <summary>
     /// Accessors defined for types, properties, methods, etc.

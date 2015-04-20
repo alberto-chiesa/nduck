@@ -10,7 +10,7 @@ namespace NDuck
     public static class Logger
     {
         /// <summary>
-        /// If true, Debugg messages will be enabled.
+        /// If true, Debug messages will be enabled.
         /// </summary>
         public static Boolean Verbose { get; set; }
 

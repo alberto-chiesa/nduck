@@ -38,7 +38,7 @@ namespace NDuck.XmlDoc
         /// <summary>
         /// Summary tag.
         /// </summary>
-        public XElement Example { get; set; }
+        public XElement ExampleXml { get; set; }
 
         /// <summary>
         /// Remarks tag.
@@ -51,9 +51,14 @@ namespace NDuck.XmlDoc
         public List<XElement> ParamXmlList { get; set; }
 
         /// <summary>
+        /// A List of Param tags.
+        /// </summary>
+        public List<XElement> TypeParamXmlList { get; set; }
+
+        /// <summary>
         /// Contains the list of Exception tags
         /// </summary>
-        public List<XElement> ExceptionList { get; set; }
+        public List<XElement> ExceptionXmlList { get; set; }
 
         /// <summary>
         /// Contains the list of Exception tags
@@ -73,17 +78,19 @@ namespace NDuck.XmlDoc
         /// </summary>
         /// <param name="memberXml">
         /// </param>
+        /// <threadsafety static="true" instance="false"/>
         /// <returns></returns>
         public XmlMemberDoc(XElement memberXml)
         {
-            ReadName(memberXml.Attribute("name").Value);
+            ReadNameAndType(memberXml.Attribute("name").Value);
 
             SummaryXml = memberXml.Element("summary");
             RemarksXml = memberXml.Element("remarks");
-            RemarksXml = memberXml.Element("example");
+            ExampleXml = memberXml.Element("example");
             ValueXml = memberXml.Element("value");
-            ParamXmlList = memberXml.Elements("params").ToList();
-            ExceptionList = memberXml.Elements("exception").ToList();
+            ParamXmlList = memberXml.Elements("param").ToList();
+            ParamXmlList = memberXml.Elements("typeparams").ToList();
+            ExceptionXmlList = memberXml.Elements("exception").ToList();
         }
 
         /// <summary>
@@ -94,7 +101,7 @@ namespace NDuck.XmlDoc
         /// The string read from the Xml.
         /// Must be in the form X:membername.
         /// </param>
-        public void ReadName(string name)
+        public void ReadNameAndType(string name)
         {
             if (String.IsNullOrEmpty(name))
                 throw new ArgumentNullException("name", "The name of a member tag must not be null or empty.");
@@ -102,7 +109,7 @@ namespace NDuck.XmlDoc
             if (name.Length < 3 || name[1] != ':')
                 throw new ArgumentException("The name of a member should be in the form \"X:memberName\" where X is T, M, F or P.");
 
-            Name = name.Substring(2);
+            Name = name.Substring(2).Replace('{', '<').Replace('}', '>');
 
             var t = name[0];
 
@@ -112,5 +119,15 @@ namespace NDuck.XmlDoc
             Type = CharToTypeDict[t];
         }
 
+        /// <summary>
+        /// Returns a string that represents the current object.
+        /// </summary>
+        /// <returns>
+        /// The objects string representation.
+        /// </returns>
+        public override string ToString()
+        {
+            return String.Concat("<", Type, ">", Name);
+        }
     }
 }

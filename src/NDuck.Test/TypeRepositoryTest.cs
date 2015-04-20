@@ -1,25 +1,44 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
+using System.Text;
+using NDuck.Data.Enum;
+using NDuck.XmlDoc;
 using NUnit.Framework;
 
-namespace NDuck.Data
+namespace NDuck
 {
+    /// <summary>
+    /// 
+    /// </summary>
     [TestFixture]
     public class TypeRepositoryTest
     {
         private TypeRepository _selfRepo;
         private TypeRepository _nduckRepo;
 
+        /// <summary>
+        /// 
+        /// </summary>
         [TestFixtureSetUp]
         public void DoReflectionBeforeTests()
         {
             _selfRepo = new TypeRepository();
-            _selfRepo.LoadAssemblyTypes(System.IO.Path.Combine(".", "NDuck.Test.dll"));
+            _selfRepo.LoadAssemblyTypes(Path.Combine(".", "NDuck.Test.dll"));
+
+            var proc = new XmlProcessor();
+            var docSelf = proc.ProcessXml(File.ReadAllText(Path.Combine(".", "NDuck.Test.xml"), Encoding.UTF8));
+            _selfRepo.LoadXmlDoc(docSelf);
 
             _nduckRepo = new TypeRepository();
-            _nduckRepo.LoadAssemblyTypes(System.IO.Path.Combine(".", "NDuck.exe"));
+            _nduckRepo.LoadAssemblyTypes(Path.Combine(".", "NDuck.exe"));
+
+
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         [Test]
         public void SelfReflect()
         {
@@ -29,6 +48,24 @@ namespace NDuck.Data
             Assert.That(_selfRepo.Namespaces["NDuck"].SubNamespaces.ContainsKey("XmlDoc"));
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [Test]
+        public void TestTypeNaming()
+        {
+            var typeData =_selfRepo.GetTypeData("NDuck.TestClasses.InternalType1`2");
+
+            Assert.That(typeData, Is.Not.Null);
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="methodName"></param>
+        /// <param name="expectedAccessor"></param>
         [Test]
         [TestCase("PublicMethod", AccessorType.Public)]
         [TestCase("InternalMethod", AccessorType.Internal)]
@@ -36,7 +73,7 @@ namespace NDuck.Data
         [TestCase("ProtectedMethod", AccessorType.Protected)]
         [TestCase("PrivateMethod", AccessorType.Private)]
         [TestCase("PrivateMethod2", AccessorType.Private)]
-        [TestCase("System.Void NDuck.TestClasses.PublicType1::.ctor()", AccessorType.Public)]
+        [TestCase("NDuck.TestClasses.PublicType1.#ctor", AccessorType.Public)]
         public void TestMethodAccessors(string methodName, AccessorType expectedAccessor)
         {
             var pubType1 = _selfRepo.GetTypeData("NDuck.TestClasses.PublicType1");
@@ -44,6 +81,11 @@ namespace NDuck.Data
             Assert.That(pubType1.GetMethod(methodName).Accessor, Is.EqualTo(expectedAccessor));
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="methodName"></param>
+        /// <param name="expectedReturnType"></param>
         [Test]
         [TestCase("PublicMethod", "System.Void")]
         [TestCase("ProtectedMethod", "System.Collections.Generic.List`1<System.String>")]
@@ -56,6 +98,9 @@ namespace NDuck.Data
             Assert.That(pubType1.GetMethod(methodName).ReturnType, Is.EqualTo(expectedReturnType));
         }
 
+        /// <summary>
+        /// TestCtorAccessors
+        /// </summary>
         [Test]
         public void TestCtorAccessors()
         {
@@ -69,6 +114,9 @@ namespace NDuck.Data
             Assert.That(pubType1.Methods.Any(m => m.Name == "PrivateMethod2" && m.Accessor == AccessorType.Private));
         }
 
+        /// <summary>
+        /// TestNDuck
+        /// </summary>
         [Test]
         public void TestNDuck()
         {
@@ -76,8 +124,8 @@ namespace NDuck.Data
             Assert.That(!_nduckRepo.Namespaces["NDuck"].SubNamespaces.ContainsKey("TestData"));
             Assert.That(dataNs.Name, Is.EqualTo("Data"));
             Assert.That(dataNs.Fullname, Is.EqualTo("NDuck.Data"));
-            Assert.That(dataNs.Types.ContainsKey("TypeRepository"));
-            Assert.That(dataNs.Types["TypeRepository"].AssemblyName, Is.EqualTo("NDuck"));
+            Assert.That(_nduckRepo.Namespaces["NDuck"].Types.ContainsKey("TypeRepository"));
+            Assert.That(_nduckRepo.Namespaces["NDuck"].Types["TypeRepository"].AssemblyName, Is.EqualTo("NDuck"));
         }
 
 
