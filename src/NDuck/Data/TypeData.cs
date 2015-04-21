@@ -11,7 +11,7 @@ namespace NDuck.Data
     /// <summary>
     /// Class containing every information related to a Type
     /// </summary>
-    public class TypeData : IDocumentable
+    public class TypeData : DocumentableBase
     {
         /// <summary>
         /// The name of the Assembly this type is defined in
@@ -64,23 +64,6 @@ namespace NDuck.Data
         public List<String> InterfacesImplemented { get; set; }
 
         /// <summary>
-        /// The text of the documentation summary
-        /// related to this type.
-        /// </summary>
-        public XElement Summary { get; set; }
-
-        /// <summary>
-        /// The text of the documentation remarks section,
-        /// related to this type.
-        /// </summary>
-        public XElement Remarks { get; set; }
-
-        /// <summary>
-        /// The text for the Example section.
-        /// </summary>
-        public XElement Example { get; set; }
-
-        /// <summary>
         /// List of Events registered on this type.
         /// </summary>
         public List<EventData> Events { get; set; }
@@ -124,6 +107,8 @@ namespace NDuck.Data
         /// <param name="typeDefinition"></param>
         public TypeData(TypeDefinition typeDefinition) : this()
         {
+            Logger.Debug("Reading type {0}...", typeDefinition.Name);
+
             Name = typeDefinition.Name;
             FullName = GetFullName(typeDefinition);
             Namespace = typeDefinition.Namespace;
@@ -203,16 +188,6 @@ namespace NDuck.Data
         }
 
         /// <summary>
-        /// Returns a list of method overloads, specified by name.
-        /// </summary>
-        /// <param name="name">The name of the method to be retrieved.</param>
-        /// <returns>A <see cref="NDuck.Data.MethodData"/> instance.</returns>
-        public List<MethodData> GetMethods(String name)
-        {
-            return Methods.Where(m => m.Name == name).ToList();
-        }
-
-        /// <summary>
         /// Returns a formatted full name of the type.
         /// </summary>
         /// <param name="type"></param>
@@ -249,13 +224,5 @@ namespace NDuck.Data
             return FullName;
         }
 
-        public void LoadDocumentation(XmlMemberDoc doc)
-        {
-            Summary = doc.SummaryXml;
-            Remarks = doc.RemarksXml;
-            Example = doc.ExampleXml;
-            
-            // TODO implementing generic type read.
-        }
     }
 }

@@ -76,7 +76,12 @@ namespace NDuck
 
                 Reindex(Namespaces.Values);
 
-                if (!String.IsNullOrEmpty(xmlDocumentationFilePath))
+                if (xmlDocumentationFilePath == null)
+                    xmlDocumentationFilePath = Path.Combine(
+                        Path.GetDirectoryName(fullPath),
+                        Path.GetFileNameWithoutExtension(fullPath) + ".xml");
+
+                if (File.Exists(xmlDocumentationFilePath))
                     LoadXmlDoc(xmlDocumentationFilePath);
             }
             catch (Exception e)
@@ -190,35 +195,33 @@ namespace NDuck
             {
                 if (member == null) continue;
 
-                var documentable = GetIDocumentable(member);
+                var documentable = GetDocumentableMember(member);
                 documentable.LoadDocumentation(member);
             }
         }
 
-        private IDocumentable GetIDocumentable(XmlMemberDoc member)
+        private IDocumentable GetDocumentableMember(XmlMemberDoc member)
         {
             switch (member.Type)
             {
                 case MemberType.Type:
-                    return GetIDocumentableFrom(TypesIndex, member.Name);
+                    return GetDocumentableFrom(TypesIndex, member.Name);
                 case MemberType.Event:
-                    return GetIDocumentableFrom(EventIndex, member.Name);
+                    return GetDocumentableFrom(EventIndex, member.Name);
                 case MemberType.Field:
-                    return GetIDocumentableFrom(FieldIndex, member.Name);
+                    return GetDocumentableFrom(FieldIndex, member.Name);
                 case MemberType.Method:
-                    return GetIDocumentableFrom(MethodIndex, member.Name);
+                    return GetDocumentableFrom(MethodIndex, member.Name);
                 case MemberType.Property:
-                    return GetIDocumentableFrom(PropertyIndex, member.Name);
+                    return GetDocumentableFrom(PropertyIndex, member.Name);
             }
 
             throw new InvalidOperationException("Unexpected member type: " + member.Type);
         }
 
-        private static IDocumentable GetIDocumentableFrom<T>(Dictionary<String, T> dic, String name)
+        private static IDocumentable GetDocumentableFrom<T>(Dictionary<String, T> dic, String name)
             where T : IDocumentable
         {
-            name = name.Replace('{', '<').Replace('}', '>');
-
             if (!dic.ContainsKey(name))
                 throw new InvalidOperationException("No " + name + " was found in the repository");
 

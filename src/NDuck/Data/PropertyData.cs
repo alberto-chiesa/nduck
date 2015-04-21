@@ -9,7 +9,7 @@ namespace NDuck.Data
     /// <summary>
     /// Class containing every information related to a Property
     /// </summary>
-    public class PropertyData : IDocumentable
+    public class PropertyData : DocumentableBase
     {
         /// <summary>
         /// The name of the property.
@@ -50,25 +50,7 @@ namespace NDuck.Data
         /// True if the property specifies a set method.
         /// </summary>
         public Boolean HasSetter { get; set; }
-
-        /// <summary>
-        /// Contains the Example documentation
-        /// for this property.
-        /// </summary>
-        public XElement Example { get; set; }
-
-        /// <summary>
-        /// Contains the Remarks documentation
-        /// for this Property
-        /// </summary>
-        public XElement Remarks { get; set; }
-
-        /// <summary>
-        /// Contains the Summary documentation
-        /// for this property
-        /// </summary>
-        public XElement Summary { get; set; }
-
+        
         /// <summary>
         /// Default Constructor.
         /// </summary>
@@ -84,6 +66,8 @@ namespace NDuck.Data
         public PropertyData(PropertyDefinition property)
         {
             if (property == null) throw new ArgumentNullException("property");
+
+            Logger.Debug("Reading property {0}...", property.Name);
 
             Name = property.Name;
             FullName = GetFullName(property);
@@ -116,11 +100,5 @@ namespace NDuck.Data
             Accessor = GetAccessor >= SetAccessor ? GetAccessor : SetAccessor;
         }
 
-        public void LoadDocumentation(XmlMemberDoc doc)
-        {
-            Summary = doc.SummaryXml;
-            Remarks = doc.RemarksXml;
-            Example = doc.ExampleXml;
-        }
     }
 }

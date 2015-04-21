@@ -12,7 +12,7 @@ namespace NDuck.Data
     /// Interface defining elements in the type
     /// hierarchy, as extracted from the assembly.
     /// </summary>
-    interface IDocumentable
+    public interface IDocumentable
     {
         /// <summary>
         /// Loads the documentation extracted from
@@ -25,38 +25,9 @@ namespace NDuck.Data
         void LoadDocumentation(XmlMemberDoc doc);
 
         /// <summary>
-        /// Summary tag.
+        /// Stores a link to the Xml Documentation
+        /// for the current documentable object.
         /// </summary>
-        XElement Summary { get; set; }
-
-        /// <summary>
-        /// Example tag.
-        /// </summary>
-        XElement Example { get; set; }
-
-        /// <summary>
-        /// Remarks tag.
-        /// </summary>
-        XElement Remarks { get; set; }
-
-        /// <summary>
-        /// A List of Param tags.
-        /// </summary>
-        List<XElement> ParamList { get; set; }
-
-        /// <summary>
-        /// A List of Param tags.
-        /// </summary>
-        List<XElement> TypeParamList { get; set; }
-
-        /// <summary>
-        /// Contains the list of Exception tags
-        /// </summary>
-        List<XElement> ExceptionList { get; set; }
-
-        /// <summary>
-        /// Contains the list of Exception tags
-        /// </summary>
-        XElement Value { get; set; }
+        XmlMemberDoc Documentation { get; set; }
     }
 }

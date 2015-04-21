@@ -89,7 +89,7 @@ namespace NDuck.XmlDoc
             ExampleXml = memberXml.Element("example");
             ValueXml = memberXml.Element("value");
             ParamXmlList = memberXml.Elements("param").ToList();
-            ParamXmlList = memberXml.Elements("typeparams").ToList();
+            TypeParamXmlList = memberXml.Elements("typeparam").ToList();
             ExceptionXmlList = memberXml.Elements("exception").ToList();
         }
 

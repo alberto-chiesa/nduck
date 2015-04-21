@@ -8,7 +8,7 @@ namespace NDuck.Data
     /// <summary>
     /// Class containing every information related to an Event
     /// </summary>
-    public class EventData : IDocumentable
+    public class EventData : DocumentableBase
     {
         /// <summary>
         /// The name of the Event
@@ -36,48 +36,10 @@ namespace NDuck.Data
         /// </param>
         public EventData(EventDefinition eventDefinition)
         {
+            Logger.Debug("Reading event {0}...", eventDefinition.Name);
+
             Name = eventDefinition.Name;
             FullName = eventDefinition.FullName;
         }
-
-        public void LoadDocumentation(XmlMemberDoc doc)
-        {
-            
-        }
-
-        /// <summary>
-        /// Links to the Xml Documentation Summary tag.
-        /// </summary>
-        public XElement Summary { get; set; }
-
-        /// <summary>
-        /// Links to the Xml Documentation Example tag.
-        /// </summary>
-        public XElement Example { get; set; }
-
-        /// <summary>
-        /// Links to the Xml Documentation Remarks tag.
-        /// </summary>
-        public XElement Remarks { get; set; }
-
-        /// <summary>
-        /// Links to the list of Xml Documentation Param tags.
-        /// </summary>
-        public List<XElement> ParamList { get; set; }
-
-        /// <summary>
-        /// Links to the list of Xml Documentation TypeParam tags.
-        /// </summary>
-        public List<XElement> TypeParamList { get; set; }
-
-        /// <summary>
-        /// Links to the list of Xml Documentation Exception tags.
-        /// </summary>
-        public List<XElement> ExceptionList { get; set; }
-
-        /// <summary>
-        /// Links to the Xml Documentation Value tag.
-        /// </summary>
-        public XElement Value { get; set; }
     }
 }

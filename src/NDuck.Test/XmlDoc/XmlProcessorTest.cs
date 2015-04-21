@@ -77,5 +77,16 @@ namespace NDuck.XmlDoc
             Assert.That(DocNh.Members[0].Type, Is.EqualTo(MemberType.Type));
             Assert.That(DocNh.Members[0].SummaryXml, Is.Not.Null);
         }
+
+        /// <summary>
+        /// Tests that the param tags are correctly
+        /// processed.
+        /// </summary>
+        [Test]
+        public void TestParameterRead()
+        {
+            var method = DocSelf.Members.First(m => m.Name == "NDuck.Data.TypeDataTest.TestNaming(System.Type,System.String)");
+            Assert.That(method.ParamXmlList.Count, Is.EqualTo(2));
+        }
     }
 }

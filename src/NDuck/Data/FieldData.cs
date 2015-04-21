@@ -9,7 +9,7 @@ namespace NDuck.Data
     /// <summary>
     /// Class containing every information related to a Field
     /// </summary>
-    public class FieldData : IDocumentable
+    public class FieldData : DocumentableBase
     {
         /// <summary>
         /// Contains the name of the property
@@ -62,6 +62,10 @@ namespace NDuck.Data
         /// </param>
         public FieldData(FieldDefinition field)
         {
+            if (field == null) throw new ArgumentNullException("field");
+
+            Logger.Debug("Reading field {0}...", field.Name);
+
             Name = field.Name;
             FullName = GetFullName(field);
             Type = field.FieldType.FullName;
@@ -100,9 +104,5 @@ namespace NDuck.Data
             throw new InvalidOperationException("Could not determine the Accessor for field " + field.FullName);
         }
 
-        public void LoadDocumentation(XmlMemberDoc doc)
-        {
-            
-        }
     }
 }

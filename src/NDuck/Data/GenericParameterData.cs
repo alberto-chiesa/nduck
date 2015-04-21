@@ -26,6 +26,8 @@ namespace NDuck.Data
         /// <param name="gp"></param>
         public GenericParameterData(GenericParameter gp)
         {
+            Logger.Debug("Reading generic parameter {0}...", gp.Name);
+
             Name = gp.Name;
         }
 

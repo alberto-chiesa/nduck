@@ -56,6 +56,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\DocumentableBase.cs" />
     <Compile Include="Data\Enum\AccessorType.cs" />
     <Compile Include="Data\Enum\ClassType.cs" />
     <Compile Include="Data\EventData.cs" />

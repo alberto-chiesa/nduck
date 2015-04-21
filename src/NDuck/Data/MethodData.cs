@@ -13,7 +13,7 @@ namespace NDuck.Data
     /// <summary>
     /// Class containing every information related to a Property
     /// </summary>
-    public class MethodData : IDocumentable
+    public class MethodData : DocumentableBase
     {
         /// <summary>
         /// The name of the method.
@@ -41,35 +41,9 @@ namespace NDuck.Data
         public List<ParameterData> Parameters { get; set; }
 
         /// <summary>
-        /// True if the method has parameters.
-        /// </summary>
-        public Boolean HasParameters
-        {
-            get { return Parameters.Count > 0; }
-        }
-
-        /// <summary>
         /// True if this method is a constructor.
         /// </summary>
         public Boolean IsConstructor { get; set; }
-
-        /// <summary>
-        /// Contains the Example documentation
-        /// for this method.
-        /// </summary>
-        public XElement Example { get; set; }
-
-        /// <summary>
-        /// Contains the Remarks documentation
-        /// for this method.
-        /// </summary>
-        public XElement Remarks { get; set; }
-
-        /// <summary>
-        /// Contains the Summary documentation
-        /// for this method.
-        /// </summary>
-        public XElement Summary { get; set; }
 
         /// <summary>
         /// Default constructor.
@@ -89,7 +63,9 @@ namespace NDuck.Data
             : this()
         {
             if (method == null) throw new ArgumentNullException("method");
-            
+
+            Logger.Debug("Reading method {0}...", method.Name);
+
             Name = method.Name;
             FullName = GetFullName(method);
             Accessor = ReadAccessor(method);
@@ -157,16 +133,16 @@ namespace NDuck.Data
         }
 
         /// <summary>
-        /// Loads the documentation data into this
-        /// method data instance.
+        /// Loads the documentation extracted from
+        /// a Visual Studio xml documentation file
+        /// into this instance.
         /// </summary>
-        /// <param name="doc"></param>
-        public void LoadDocumentation(XmlMemberDoc doc)
+        /// <param name="doc">
+        /// A member documentation object.
+        /// </param>
+        public override void LoadDocumentation(XmlMemberDoc doc)
         {
-            Summary = doc.SummaryXml;
-            Remarks = doc.RemarksXml;
-            Example = doc.ExampleXml;
-
+            base.LoadDocumentation(doc);
             ReadParametersDocs(doc);
         }
 
