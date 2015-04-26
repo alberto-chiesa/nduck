@@ -65,26 +65,6 @@ namespace NDuck
         /// 
         /// </summary>
         /// <param name="methodName"></param>
-        /// <param name="expectedAccessor"></param>
-        [Test]
-        [TestCase("PublicMethod", AccessorType.Public)]
-        [TestCase("InternalMethod", AccessorType.Internal)]
-        [TestCase("ProtectedInternalMethod", AccessorType.ProtectedInternal)]
-        [TestCase("ProtectedMethod", AccessorType.Protected)]
-        [TestCase("PrivateMethod", AccessorType.Private)]
-        [TestCase("PrivateMethod2", AccessorType.Private)]
-        [TestCase("NDuck.TestClasses.PublicType1.#ctor", AccessorType.Public)]
-        public void TestMethodAccessors(string methodName, AccessorType expectedAccessor)
-        {
-            var pubType1 = _selfRepo.GetTypeData("NDuck.TestClasses.PublicType1");
-
-            Assert.That(pubType1.GetMethod(methodName).Accessor, Is.EqualTo(expectedAccessor));
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="methodName"></param>
         /// <param name="expectedReturnType"></param>
         [Test]
         [TestCase("PublicMethod", "System.Void")]
@@ -102,16 +82,26 @@ namespace NDuck
         /// TestCtorAccessors
         /// </summary>
         [Test]
-        public void TestCtorAccessors()
+        [TestCase("PublicMethod", AccessorType.Public, 82)]
+        [TestCase("InternalMethod", AccessorType.Internal, null)]
+        [TestCase("ProtectedInternalMethod", AccessorType.ProtectedInternal, null)]
+        [TestCase("ProtectedMethod", AccessorType.Protected, null)]
+        [TestCase("PrivateMethod", AccessorType.Private, null)]
+        [TestCase("PrivateMethod2", AccessorType.Private, 116)]
+        public void TestMethodsMetadata(string methodName, AccessorType accessor, int? startLine)
         {
             var pubType1 = _selfRepo.GetTypeData("NDuck.TestClasses.PublicType1");
 
-            Assert.That(pubType1.Methods.Any(m => m.Name == "PublicMethod" && m.Accessor == AccessorType.Public));
-            Assert.That(pubType1.Methods.Any(m => m.Name == "InternalMethod" && m.Accessor == AccessorType.Internal));
-            Assert.That(pubType1.Methods.Any(m => m.Name == "ProtectedInternalMethod" && m.Accessor == AccessorType.ProtectedInternal));
-            Assert.That(pubType1.Methods.Any(m => m.Name == "ProtectedMethod" && m.Accessor == AccessorType.Protected));
-            Assert.That(pubType1.Methods.Any(m => m.Name == "PrivateMethod" && m.Accessor == AccessorType.Private));
-            Assert.That(pubType1.Methods.Any(m => m.Name == "PrivateMethod2" && m.Accessor == AccessorType.Private));
+            var method = pubType1.Methods.First(m => m.Name == methodName);
+            
+            Assert.That(method.Accessor, Is.EqualTo(accessor));
+         
+            Assert.That(method.IsConstructor, Is.False);
+
+            Assert.That(method.Reference.FilePath.EndsWith(@"TestClasses\PublicType1.cs"));
+
+            if (startLine != null)
+                Assert.That(method.Reference.StartLine, Is.EqualTo(startLine.Value));
         }
 
         /// <summary>

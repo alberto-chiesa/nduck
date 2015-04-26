@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 using Mono.Cecil;
+using Mono.Cecil.Cil;
 using NDuck.Data.Enum;
 using NDuck.XmlDoc;
 
@@ -46,6 +47,13 @@ namespace NDuck.Data
         public Boolean IsConstructor { get; set; }
 
         /// <summary>
+        /// A reference to the implementation source file,
+        /// extracted by Cecil from the pdb file attached
+        /// to the cmodule.
+        /// </summary>
+        public CodeReference Reference { get; set; }
+
+        /// <summary>
         /// Default constructor.
         /// </summary>
         public MethodData()
@@ -74,6 +82,26 @@ namespace NDuck.Data
 
             if (method.HasParameters)
                 Parameters.AddRange(method.Parameters.Select(p => new ParameterData(p)));
+
+            ReadReference(method.Body);
+            //if (method.Body != null)
+            //    method.Body.Instructions[0].SequencePoint.Document.Url
+        }
+
+        /// <summary>
+        /// Reads a reference from the first instruction
+        /// in the method body.
+        /// </summary>
+        /// <param name="body"></param>
+        private void ReadReference(MethodBody body)
+        {
+            if (body != null && 
+                body.Instructions != null &&
+                body.Instructions.Count >= 1 &&
+                body.Instructions[0].SequencePoint != null)
+            {
+                Reference = new CodeReference(body.Instructions[0].SequencePoint);
+            }
         }
 
         /// <summary>

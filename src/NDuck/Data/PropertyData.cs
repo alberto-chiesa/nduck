@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Xml.Linq;
 using Mono.Cecil;
+using Mono.Cecil.Cil;
 using NDuck.Data.Enum;
 using NDuck.XmlDoc;
 
@@ -50,7 +51,14 @@ namespace NDuck.Data
         /// True if the property specifies a set method.
         /// </summary>
         public Boolean HasSetter { get; set; }
-        
+
+        /// <summary>
+        /// A reference to the implementation source file,
+        /// extracted by Cecil from the pdb file attached
+        /// to the cmodule.
+        /// </summary>
+        public CodeReference Reference { get; set; }
+
         /// <summary>
         /// Default Constructor.
         /// </summary>
@@ -75,6 +83,8 @@ namespace NDuck.Data
             ReadAccessors(property);
             HasGetter = property.GetMethod != null;
             HasSetter = property.SetMethod != null;
+
+            ReadReference(property);
         }
 
         /// <summary>
@@ -98,6 +108,36 @@ namespace NDuck.Data
             GetAccessor = property.GetMethod != null ? MethodData.ReadAccessor(property.GetMethod) : AccessorType.Invalid;
             SetAccessor = property.SetMethod != null ? MethodData.ReadAccessor(property.SetMethod) : AccessorType.Invalid;
             Accessor = GetAccessor >= SetAccessor ? GetAccessor : SetAccessor;
+        }
+
+        /// <summary>
+        /// Reads a reference for the implementation of the
+        /// getter or setter methods, when available.
+        /// </summary>
+        /// <param name="property"></param>
+        private void ReadReference(PropertyDefinition property)
+        {
+            if (HasGetter)
+                ReadReference(property.GetMethod.Body);
+            else if (HasSetter)
+                ReadReference(property.SetMethod.Body);
+            else Reference = null;
+        }
+
+        /// <summary>
+        /// Reads a reference from the first instruction
+        /// in the method body.
+        /// </summary>
+        /// <param name="body"></param>
+        private void ReadReference(MethodBody body)
+        {
+            if (body != null &&
+                body.Instructions != null &&
+                body.Instructions.Count >= 1 &&
+                body.Instructions[0].SequencePoint != null)
+            {
+                Reference = new CodeReference(body.Instructions[0].SequencePoint);
+            }
         }
 
     }

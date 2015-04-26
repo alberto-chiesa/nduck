@@ -89,6 +89,12 @@ namespace NDuck.Data
         public List<GenericParameterData> GenericParameters { get; set; }
 
         /// <summary>
+        /// Contains a list of all the nested
+        /// types for the current type.
+        /// </summary>
+        public List<TypeData> NestedTypes { get; set; }
+
+        /// <summary>
         /// Default constructor
         /// </summary>
         public TypeData()
@@ -99,6 +105,7 @@ namespace NDuck.Data
             Methods = new List<MethodData>();
             InterfacesImplemented = new List<string>();
             GenericParameters = new List<GenericParameterData>();
+            NestedTypes = new List<TypeData>();
         }
 
         /// <summary>
@@ -111,7 +118,9 @@ namespace NDuck.Data
 
             Name = typeDefinition.Name;
             FullName = GetFullName(typeDefinition);
-            Namespace = typeDefinition.Namespace;
+            Namespace = typeDefinition.IsNested ?
+                GetFullName(typeDefinition.DeclaringType) :
+                typeDefinition.Namespace;
             AssemblyName = typeDefinition.Module.Assembly.Name.Name;
             IsSealed = typeDefinition.IsSealed;
             IsStatic = typeDefinition.IsAbstract && typeDefinition.IsSealed;
@@ -136,6 +145,9 @@ namespace NDuck.Data
 
             if (typeDefinition.HasProperties)
                 Properties.AddRange(typeDefinition.Properties.Select(p => new PropertyData(p)));
+
+            if (typeDefinition.HasNestedTypes)
+                NestedTypes.AddRange(typeDefinition.NestedTypes.Select(t => new TypeData(t)));
         }
 
         /// <summary>
@@ -194,7 +206,7 @@ namespace NDuck.Data
         /// <returns></returns>
         /// <remarks>
         /// A type name is composed by 4 segments:
-        ///   * the namespace
+        ///   * the namespace (or the name of the enclosing type)
         ///   * the type name, stripped of any generic reference
         ///   * in case of generic types, a '`' followed by the number of parameters
         ///   * in case of generic instance types, a &lt;> enclosed list of type arguments
@@ -203,13 +215,17 @@ namespace NDuck.Data
         {
             if (type == null) throw new ArgumentNullException("type");
 
+            var declaringNamespace = type.IsNested ?
+                GetFullName(type.DeclaringType) :
+                type.Namespace;
+
             var genericInstanceType = type as GenericInstanceType;
 
             var boundGenericTypes = (genericInstanceType != null) ?
                 genericInstanceType.GenericArguments.Select(GetFullName) :
                 null;
 
-            return String.Concat(type.Namespace, ".",
+            return String.Concat(declaringNamespace, ".",
                 new String(type.Name.TakeWhile(c => c != '`').ToArray()),
                 (type.GenericParameters.Count > 0 ? "`" + type.GenericParameters.Count : ""),
                 boundGenericTypes != null ? "<" + String.Join(",", boundGenericTypes) + ">" : "");

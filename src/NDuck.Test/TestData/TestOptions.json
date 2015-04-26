@@ -1,0 +1,7 @@
+﻿{
+    /* A comment about outputpath */
+    "OutputPath": "./nduck",
+    "Assemblies": [ "Assembly1", "Assembly2" ],
+    "Verbosity": "Debug",
+    "ContentDirectory": "./content"
+}

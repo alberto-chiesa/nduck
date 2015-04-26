@@ -105,5 +105,20 @@ namespace NDuck.TestData {
                 return ResourceManager.GetString("NHibernate", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {
+        ///    &quot;OutputPath&quot;: &quot;./nduck&quot;,
+        ///    &quot;Assemblies&quot;: [ &quot;Assembly1&quot;, &quot;Assembly2&quot; ],
+        ///    &quot;Verbosity&quot;: &quot;Debug&quot;,
+        ///    &quot;ContentDirectory&quot;: &quot;./content&quot;
+        ///}
+        ///.
+        /// </summary>
+        internal static string TestOptions {
+            get {
+                return ResourceManager.GetString("TestOptions", resourceCulture);
+            }
+        }
     }
 }

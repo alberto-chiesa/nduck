@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Mono.Cecil;
+using Mono.Cecil.Pdb;
 using NDuck.Data;
 using NDuck.XmlDoc;
 
@@ -70,19 +71,20 @@ namespace NDuck
 
             try
             {
-                var module = ModuleDefinition.ReadModule(fullPath);
+                var module = ReadModule(fullPath);
 
                 foreach (var t in module.Types) LoadType(t);
 
                 Reindex(Namespaces.Values);
 
                 if (xmlDocumentationFilePath == null)
-                    xmlDocumentationFilePath = Path.Combine(
-                        Path.GetDirectoryName(fullPath),
-                        Path.GetFileNameWithoutExtension(fullPath) + ".xml");
+                    xmlDocumentationFilePath = ReplaceExtensionInFilePath(fullPath, "xml");
 
                 if (File.Exists(xmlDocumentationFilePath))
                     LoadXmlDoc(xmlDocumentationFilePath);
+
+                var pdbFile = ReplaceExtensionInFilePath(fullPath, "pdb");
+                //var pdbReader = new PdbReader()
             }
             catch (Exception e)
             {
@@ -90,6 +92,23 @@ namespace NDuck
                 Logger.Debug(ConsoleColor.DarkRed, "At: {0}", e.StackTrace);
                 throw;
             }
+        }
+
+        private static ModuleDefinition ReadModule(string fullPath)
+        {
+            var readerParameters = new ReaderParameters(ReadingMode.Immediate)
+            {
+                ReadSymbols = true
+            };
+
+            return ModuleDefinition.ReadModule(fullPath, readerParameters);
+        }
+
+        private static string ReplaceExtensionInFilePath(string fullPath, string extension)
+        {
+            return Path.Combine(
+                Path.GetDirectoryName(fullPath),
+                Path.GetFileNameWithoutExtension(fullPath) + "." + extension);
         }
 
         private void Reindex(IEnumerable<NamespaceData> toList)
@@ -113,6 +132,8 @@ namespace NDuck
             foreach (var p in type.Properties) PropertyIndex[p.FullName] = p;
             
             foreach (var e in type.Events) EventIndex[e.FullName] = e;
+
+            foreach (var t in type.NestedTypes) ReindexType(t);
         }
 
         private void LoadType(TypeDefinition typeDefinition)

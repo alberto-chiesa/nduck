@@ -50,6 +50,13 @@
     <Reference Include="Mono.Cecil.Rocks">
       <HintPath>..\packages\Mono.Cecil.0.9.5.4\lib\net40\Mono.Cecil.Rocks.dll</HintPath>
     </Reference>
+    <Reference Include="Moq">
+      <HintPath>..\packages\Moq.4.1.1309.0919\lib\net40\Moq.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
     </Reference>
@@ -62,6 +69,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Config\ExecutionOptionsTest.cs" />
+    <Compile Include="Data\MethodDataTest.cs" />
     <Compile Include="Data\TypeDataTest.cs" />
     <Compile Include="Output\JsOutputTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -73,11 +82,13 @@
       <DependentUpon>XmlTestDocs.resx</DependentUpon>
     </Compile>
     <Compile Include="TypeRepositoryTest.cs" />
+    <Compile Include="XmlDoc\XmlMemberDocTest.cs" />
     <Compile Include="XmlDoc\XmlProcessorTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+    <None Include="TestData\TestOptions.json" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NDuck\NDuck.csproj">
