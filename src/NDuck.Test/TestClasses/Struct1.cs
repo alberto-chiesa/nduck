@@ -14,6 +14,8 @@ namespace NDuck.TestClasses
         /// <summary>
         /// Private field.
         /// </summary>
+#pragma warning disable 169
         int a;
+#pragma warning restore 169
     }
 }

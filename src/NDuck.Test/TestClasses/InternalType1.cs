@@ -39,6 +39,25 @@ namespace NDuck.TestClasses
         private class PrivateClass<T>
         {
             /// <summary>
+            /// Sub private class.
+            /// </summary>
+            /// <typeparam name="L">
+            /// A generic type parameter.
+            /// </typeparam>
+            private class PrivateClass2<L>
+            {
+                /// <summary>
+                /// A property.
+                /// </summary>
+                public T Aproperty { get; set; }
+
+                /// <summary>
+                /// A property.
+                /// </summary>
+                public L Prop2 { get; set; }
+            }
+
+            /// <summary>
             /// A generic type property.
             /// </summary>
             public T Prop { get; set; }

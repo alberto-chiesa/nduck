@@ -91,12 +91,12 @@ namespace NDuck
         /// TestCtorAccessors
         /// </summary>
         [Test]
-        [TestCase("PublicMethod", AccessorType.Public, 87)]
+        [TestCase("PublicMethod", AccessorType.Public, 89)]
         [TestCase("InternalMethod", AccessorType.Internal, null)]
         [TestCase("ProtectedInternalMethod", AccessorType.ProtectedInternal, null)]
         [TestCase("ProtectedMethod", AccessorType.Protected, null)]
         [TestCase("PrivateMethod", AccessorType.Private, null)]
-        [TestCase("PrivateMethod2", AccessorType.Private, 121)]
+        [TestCase("PrivateMethod2", AccessorType.Private, 123)]
         public void TestMethodsMetadata(string methodName, AccessorType accessor, int? startLine)
         {
             var pubType1 = _selfRepo.GetTypeData("NDuck.TestClasses.PublicType1");

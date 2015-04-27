@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Xml.Linq;
 
 namespace NDuck.Output
@@ -42,7 +40,7 @@ namespace NDuck.Output
         /// searches for a common indentation pattern and removes the
         /// indentation common to all the block, when available.
         /// </summary>
-        /// <param name="xml">An xml element to be de-indented</param>
+        /// <param name="xml">An xml element to be de-indented.</param>
         /// <returns>The xml tag content as a string.</returns>
         public static String ValueUnindented(this XElement xml)
         {
@@ -50,16 +48,12 @@ namespace NDuck.Output
 
             var lines = RowSplit.Split(xml.Value).SkipWhile(String.IsNullOrEmpty).ToArray();
 
-            var prefix = FindPrefix(lines);
-
-            if (String.IsNullOrEmpty(prefix)) return String.Join("\n", lines);
-
-            var prefixLength = prefix.Length;
+            var prefix = FindPrefix(lines) ?? string.Empty;
 
             // do not return the last row, if it's only a prefix
-            return String.Join("\n",
-                lines.Take((lines[lines.Length - 1] == prefix) ? lines.Length - 1 : lines.Length)
-                    .Select(s => s.Substring(prefixLength)));
+            return (lines[lines.Length - 1] == prefix) ?
+                String.Join("\n", lines.Take(lines.Length - 1).Select(s => s.Substring(prefix.Length))) :
+                String.Join("\n", lines.Select(s => s.Substring(prefix.Length)));
         }
 
         /// <summary>
@@ -74,10 +68,8 @@ namespace NDuck.Output
 
             string prefix = null;
 
-            foreach (var line in lines)
+            foreach (var linePrefix in ExtractIndentationWhitespace(lines))
             {
-                var m = IndentWhiteSpace.Match(line);
-                var linePrefix = m.Success ? m.Value : String.Empty;
                 if (prefix == null)
                 {
                     prefix = linePrefix;
@@ -100,5 +92,10 @@ namespace NDuck.Output
             return prefix;
         }
 
+        private static IEnumerable<string> ExtractIndentationWhitespace(string[] lines)
+        {
+            return lines.Select(line => IndentWhiteSpace.Match(line))
+                .Select(m => m.Success ? m.Value : String.Empty);
+        }
     }
 }

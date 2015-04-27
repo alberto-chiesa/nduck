@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Xml.Linq;
 
 namespace NDuck.XmlDoc
@@ -26,6 +25,7 @@ namespace NDuck.XmlDoc
         {
             try
             {
+                Logger.Debug("Reading xml doc file...");
                 var result = new XmlDocumentation();
 
                 var xml = XDocument.Parse(xmlString);
@@ -41,8 +41,9 @@ namespace NDuck.XmlDoc
 
                 return result;
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Logger.Error("There was an error reading xml documentation file for {0}: {1}.", xmlString, e.Message);
                 throw;
             }
         }
@@ -53,7 +54,7 @@ namespace NDuck.XmlDoc
 
             if (members == null)
             {
-                Logger.WriteLine(ConsoleColor.DarkYellow, "Could not find members tag in the provided xml file."); 
+                Logger.Warn("Could not find members tag in the provided xml file."); 
                 return new List<XmlMemberDoc>();
             }
 
@@ -83,6 +84,8 @@ namespace NDuck.XmlDoc
         /// </returns>
         public static XmlDocumentation ReadXmlDocumentation(string xmlDocumentationFilePath)
         {
+            Logger.Debug("Processing {0} xml doc...", xmlDocumentationFilePath);
+
             if (xmlDocumentationFilePath == null) throw new ArgumentNullException("xmlDocumentationFilePath");
 
             if (!File.Exists(xmlDocumentationFilePath))
@@ -91,8 +94,8 @@ namespace NDuck.XmlDoc
             var xml = File.ReadAllText(xmlDocumentationFilePath, Encoding.UTF8);
 
             var proc = new XmlProcessor();
-            var xmlDocumentation = proc.ProcessXml(xml);
-            return xmlDocumentation;
+            
+            return proc.ProcessXml(xml);
         }
     }
 }

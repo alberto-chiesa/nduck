@@ -4,6 +4,7 @@ using System.IO;
 using System.Text;
 using Mono.Cecil;
 using Mono.Cecil.Pdb;
+using NDuck.Config;
 using NDuck.Data;
 using NDuck.XmlDoc;
 
@@ -17,6 +18,12 @@ namespace NDuck
     /// </summary>
     public class TypeRepository
     {
+        /// <summary>
+        /// Contains the options to be applied to the
+        /// data extraction process.
+        /// </summary>
+        public ExecutionOptions Options { get; set; }
+
         /// <summary>
         /// Dictionary of the available namespaces
         /// </summary>
@@ -50,8 +57,10 @@ namespace NDuck
         /// <summary>
         /// Default constructor
         /// </summary>
-        public TypeRepository()
+        /// <param name="options"></param>
+        public TypeRepository(ExecutionOptions options = null)
         {
+            Options = options;
             Namespaces = new Dictionary<string, NamespaceData>();
             TypesIndex = new Dictionary<string, TypeData>();
             MethodIndex = new Dictionary<string, MethodData>();

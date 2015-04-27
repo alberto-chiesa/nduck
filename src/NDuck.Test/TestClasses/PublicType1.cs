@@ -14,7 +14,9 @@ namespace NDuck.TestClasses
         /// <summary>
         /// Just a sample event for testing.
         /// </summary>
+#pragma warning disable 67
         public event Action<String> ExampleEvent;
+#pragma warning restore 67
 
         /// <summary>
         /// 

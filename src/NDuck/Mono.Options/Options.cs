@@ -138,6 +138,7 @@ using System.Runtime.Serialization;
 using System.Security.Permissions;
 using System.Text;
 using System.Text.RegularExpressions;
+#pragma warning disable 1591
 
 #if LINQ
 using System.Linq;

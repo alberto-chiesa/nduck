@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Xml.Linq;
 using Mono.Cecil;
 using NDuck.Data.Enum;
-using NDuck.XmlDoc;
 
 namespace NDuck.Data
 {
@@ -14,7 +12,7 @@ namespace NDuck.Data
     public class TypeData : DocumentableBase
     {
         /// <summary>
-        /// The name of the Assembly this type is defined in
+        /// The name of the Assembly this type is defined in.
         /// </summary>
         public String AssemblyName { get; set; }
 
@@ -44,17 +42,18 @@ namespace NDuck.Data
         public String BaseClass { get; set; }
 
         /// <summary>
-        /// True if type is static
+        /// Defines the class type (class, enum, interface or
+        /// struct) for the present type.
         /// </summary>
         public ClassType ClassType { get; set; }
 
         /// <summary>
-        /// True if type is static
+        /// True if type is static.
         /// </summary>
         public Boolean IsStatic { get; set; }
 
         /// <summary>
-        /// True if type is sealed
+        /// True if type is sealed.
         /// </summary>
         public Boolean IsSealed { get; set; }
 
@@ -79,7 +78,7 @@ namespace NDuck.Data
         public List<PropertyData> Properties { get; set; }
 
         /// <summary>
-        /// List of the Methods registered on this type.
+        /// List of the Methods defined by this type.
         /// </summary>
         public List<MethodData> Methods { get; set; }
 
@@ -95,59 +94,66 @@ namespace NDuck.Data
         public List<TypeData> NestedTypes { get; set; }
 
         /// <summary>
-        /// Default constructor
+        /// Default constructor.
         /// </summary>
         public TypeData()
         {
             Events = new List<EventData>();
             Fields = new List<FieldData>();
-            Properties = new List<PropertyData>();
             Methods = new List<MethodData>();
+            Properties = new List<PropertyData>();
             InterfacesImplemented = new List<string>();
             GenericParameters = new List<GenericParameterData>();
             NestedTypes = new List<TypeData>();
         }
 
         /// <summary>
-        /// Constructor used for type mapping
+        /// Constructor used for type mapping.
         /// </summary>
-        /// <param name="typeDefinition"></param>
-        public TypeData(TypeDefinition typeDefinition) : this()
+        /// <param name="type">
+        /// A type definition extracted from a module by Cecil.
+        /// </param>
+        public TypeData(TypeDefinition type)
         {
-            Logger.Debug("Reading type {0}...", typeDefinition.Name);
+            Logger.Debug("Reading type {0}...", type.Name);
 
-            Name = typeDefinition.Name;
-            FullName = GetFullName(typeDefinition);
-            Namespace = typeDefinition.IsNested ?
-                GetFullName(typeDefinition.DeclaringType) :
-                typeDefinition.Namespace;
-            AssemblyName = typeDefinition.Module.Assembly.Name.Name;
-            IsSealed = typeDefinition.IsSealed;
-            IsStatic = typeDefinition.IsAbstract && typeDefinition.IsSealed;
+            Name = type.Name;
+            FullName = GetFullName(type);
+            Namespace = type.IsNested ? GetFullName(type.DeclaringType) : type.Namespace;
+            AssemblyName = type.Module.Assembly.Name.Name;
+            IsSealed = type.IsSealed;
+            IsStatic = type.IsAbstract && type.IsSealed;
+            Accessor = ReadAccessor(type);
+            ClassType = ReadClassType(type);
+            BaseClass = type.BaseType != null ? type.BaseType.FullName : null;
 
-            Accessor = ReadAccessor(typeDefinition);
-            ClassType = ReadClassType(typeDefinition);
+            InterfacesImplemented = type.Interfaces != null ?
+                type.Interfaces.Select(i => i.FullName).ToList() :
+                new List<String>();
 
-            BaseClass = typeDefinition.BaseType != null ? typeDefinition.BaseType.FullName : null;
-            InterfacesImplemented.AddRange(typeDefinition.Interfaces.Select(i => i.FullName));
+            Events = type.HasEvents ?
+                type.Events.Select(e => new EventData(e)).ToList() :
+                new List<EventData>();
 
-            if (typeDefinition.HasGenericParameters)
-                GenericParameters.AddRange(typeDefinition.GenericParameters.Select(gp => new GenericParameterData(gp)));
+            Fields = type.HasFields ?
+                type.Fields.Select(f => new FieldData(f)).ToList() :
+                new List<FieldData>();
+            
+            Methods = type.HasMethods ?
+                type.Methods.Select(m => new MethodData(m)).ToList() :
+                new List<MethodData>();
+            
+            Properties = type.HasProperties ?
+                type.Properties.Select(p => new PropertyData(p)).ToList() :
+                new List<PropertyData>();
 
-            if (typeDefinition.HasEvents)
-                Events.AddRange(typeDefinition.Events.Select(e => new EventData(e)));
+            GenericParameters = type.HasGenericParameters ?
+                type.GenericParameters.Select(gp => new GenericParameterData(gp)).ToList() :
+                new List<GenericParameterData>();
 
-            if (typeDefinition.HasMethods)
-                Methods.AddRange(typeDefinition.Methods.Select(m => new MethodData(m)));
-
-            if (typeDefinition.HasFields)
-                Fields.AddRange(typeDefinition.Fields.Select(f => new FieldData(f)));
-
-            if (typeDefinition.HasProperties)
-                Properties.AddRange(typeDefinition.Properties.Select(p => new PropertyData(p)));
-
-            if (typeDefinition.HasNestedTypes)
-                NestedTypes.AddRange(typeDefinition.NestedTypes.Select(t => new TypeData(t)));
+            NestedTypes = type.HasNestedTypes ?
+                type.NestedTypes.Select(t => new TypeData(t)).ToList() :
+                new List<TypeData>();
         }
 
         /// <summary>
@@ -158,7 +164,7 @@ namespace NDuck.Data
         /// A Cecil reflected type definition instance.
         /// </param>
         /// <returns>
-        /// The reflected <see cref="ClassType"/>
+        /// The reflected <see cref="ClassType"/>.
         /// </returns>
         public static ClassType ReadClassType(TypeDefinition type)
         {
@@ -202,9 +208,18 @@ namespace NDuck.Data
         /// <summary>
         /// Returns a formatted full name of the type.
         /// </summary>
-        /// <param name="type"></param>
-        /// <returns></returns>
+        /// <param name="type">
+        /// A type reference to be analyzed.
+        /// </param>
+        /// <returns>
+        /// The type name, as will be defined in the xml
+        /// documentation files.
+        /// </returns>
         /// <remarks>
+        /// I was not able to find a proper documentation for the
+        /// inner details of the naming strategy, so this method has
+        /// been completely reverse engineered from the widest set
+        /// of samples I could come up with.
         /// A type name is composed by 4 segments:
         ///   * the namespace (or the name of the enclosing type)
         ///   * the type name, stripped of any generic reference
@@ -231,16 +246,48 @@ namespace NDuck.Data
                 boundGenericTypes != null ? "<" + String.Join(",", boundGenericTypes) + ">" : "");
         }
 
+        /// <summary>
+        /// Helper method used to compute the number of
+        /// generic parameters.
+        /// </summary>
+        /// <param name="type">
+        /// A type reference to be analyzed.
+        /// </param>
+        /// <returns>
+        /// The number of generic parameters defined in the
+        /// provided type reference.
+        /// </returns>
+        /// <remarks>
+        /// This method is necessary because of nested types: at the IL
+        /// level, a nested type will list also every generic parameter
+        /// in the enclosing types, but the name of the type will report
+        /// only the number of generic parameters declared for the
+        /// current type; so, in order to produce the correct naming
+        /// (in order to match the tags generated for the Xml documentation
+        /// file), we have to make the difference between the parameters
+        /// we see at the IL level, and the parameters which where defined
+        /// in the enclosing types.
+        /// </remarks>
         private static int GetGenericParametersCount(TypeReference type)
         {
-            var inheritedParams = type.IsNested ? GetGenericParametersCount(type.DeclaringType) : 0;
+            var inheritedParams = 0;
+            var declaringType = type.DeclaringType;
+
+            while (declaringType != null)
+            {
+                inheritedParams += GetGenericParametersCount(declaringType);
+                declaringType = declaringType.DeclaringType;
+            }
+            
             return type.GenericParameters.Count - inheritedParams;
         }
 
         /// <summary>
         /// Returns a string representation of the type.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>
+        /// The object string representation. Ha-ha!
+        /// </returns>
         public override string ToString()
         {
             return FullName;
