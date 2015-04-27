@@ -82,9 +82,6 @@ namespace NDuck
 
                 if (File.Exists(xmlDocumentationFilePath))
                     LoadXmlDoc(xmlDocumentationFilePath);
-
-                var pdbFile = ReplaceExtensionInFilePath(fullPath, "pdb");
-                //var pdbReader = new PdbReader()
             }
             catch (Exception e)
             {

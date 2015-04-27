@@ -39,7 +39,7 @@ namespace NDuck.Data
             Logger.Debug("Reading event {0}...", eventDefinition.Name);
 
             Name = eventDefinition.Name;
-            FullName = eventDefinition.FullName;
+            FullName = TypeData.GetFullName(eventDefinition.DeclaringType) + "." + eventDefinition.Name;
         }
     }
 }

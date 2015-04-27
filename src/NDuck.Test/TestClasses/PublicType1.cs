@@ -9,8 +9,13 @@ namespace NDuck.TestClasses
     /// <summary>
     /// Public class used for reflection testing.
     /// </summary>
-    public class PublicType1
+    public class PublicType1 : IPublic1
     {
+        /// <summary>
+        /// Just a sample event for testing.
+        /// </summary>
+        public event Action<String> ExampleEvent;
+
         /// <summary>
         /// 
         /// </summary>

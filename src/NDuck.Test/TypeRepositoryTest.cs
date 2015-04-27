@@ -53,11 +53,20 @@ namespace NDuck
         /// 
         /// </summary>
         [Test]
-        public void TestTypeNaming()
+        [TestCase("NDuck.TestClasses.PublicType1", AccessorType.Public, ClassType.Class)]
+        [TestCase("NDuck.TestClasses.IPublic1", AccessorType.Public, ClassType.Interface)]
+        [TestCase("NDuck.TestClasses.InternalType1`2", AccessorType.Internal, ClassType.Class)]
+        [TestCase("NDuck.TestClasses.InternalType1`2.PrivateClass`1", AccessorType.Private, ClassType.Class)]
+        [TestCase("NDuck.TestClasses.InternalType1`2.InternalEnum", AccessorType.Internal, ClassType.Enum)]
+        [TestCase("NDuck.TestClasses.Enum1", AccessorType.Public, ClassType.Enum)]
+        [TestCase("NDuck.TestClasses.Struct1", AccessorType.Internal, ClassType.Struct)]
+        public void TestTypeNaming(String typeName, AccessorType accessor, ClassType classType)
         {
-            var typeData =_selfRepo.GetTypeData("NDuck.TestClasses.InternalType1`2");
-
+            var typeData =_selfRepo.GetTypeData(typeName);
+            
             Assert.That(typeData, Is.Not.Null);
+            Assert.That(typeData.Accessor, Is.EqualTo(accessor));
+            Assert.That(typeData.ClassType, Is.EqualTo(classType));
         }
 
 
@@ -82,12 +91,12 @@ namespace NDuck
         /// TestCtorAccessors
         /// </summary>
         [Test]
-        [TestCase("PublicMethod", AccessorType.Public, 82)]
+        [TestCase("PublicMethod", AccessorType.Public, 87)]
         [TestCase("InternalMethod", AccessorType.Internal, null)]
         [TestCase("ProtectedInternalMethod", AccessorType.ProtectedInternal, null)]
         [TestCase("ProtectedMethod", AccessorType.Protected, null)]
         [TestCase("PrivateMethod", AccessorType.Private, null)]
-        [TestCase("PrivateMethod2", AccessorType.Private, 116)]
+        [TestCase("PrivateMethod2", AccessorType.Private, 121)]
         public void TestMethodsMetadata(string methodName, AccessorType accessor, int? startLine)
         {
             var pubType1 = _selfRepo.GetTypeData("NDuck.TestClasses.PublicType1");

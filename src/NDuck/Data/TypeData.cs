@@ -162,9 +162,9 @@ namespace NDuck.Data
         /// </returns>
         public static ClassType ReadClassType(TypeDefinition type)
         {
-            if (type.IsClass) return type.IsValueType ? ClassType.Struct : ClassType.Class;
             if (type.IsInterface) return ClassType.Interface;
             if (type.IsEnum) return ClassType.Enum;
+            if (type.IsClass) return type.IsValueType ? ClassType.Struct : ClassType.Class;
 
             throw new InvalidOperationException("The type " + type.Name + " seems not to be a class, interface, struct or enum.");
         }
@@ -215,9 +215,7 @@ namespace NDuck.Data
         {
             if (type == null) throw new ArgumentNullException("type");
 
-            var declaringNamespace = type.IsNested ?
-                GetFullName(type.DeclaringType) :
-                type.Namespace;
+            var typeNs = type.IsNested ? GetFullName(type.DeclaringType) : type.Namespace;
 
             var genericInstanceType = type as GenericInstanceType;
 
@@ -225,10 +223,18 @@ namespace NDuck.Data
                 genericInstanceType.GenericArguments.Select(GetFullName) :
                 null;
 
-            return String.Concat(declaringNamespace, ".",
+            var genericParametersCount = GetGenericParametersCount(type);
+
+            return String.Concat(typeNs, ".",
                 new String(type.Name.TakeWhile(c => c != '`').ToArray()),
-                (type.GenericParameters.Count > 0 ? "`" + type.GenericParameters.Count : ""),
+                (genericParametersCount > 0 ? "`" + genericParametersCount : ""),
                 boundGenericTypes != null ? "<" + String.Join(",", boundGenericTypes) + ">" : "");
+        }
+
+        private static int GetGenericParametersCount(TypeReference type)
+        {
+            var inheritedParams = type.IsNested ? GetGenericParametersCount(type.DeclaringType) : 0;
+            return type.GenericParameters.Count - inheritedParams;
         }
 
         /// <summary>
