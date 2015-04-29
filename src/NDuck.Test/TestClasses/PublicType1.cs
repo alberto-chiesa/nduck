@@ -86,9 +86,7 @@ namespace NDuck.TestClasses
         /// Public action.
         /// </summary>
         public void PublicMethod()
-        {
-            
-        }
+        {}
 
         /// <summary>
         /// Protected internal method.
@@ -120,9 +118,7 @@ namespace NDuck.TestClasses
         /// A Private method.
         /// </summary>
         void PrivateMethod2()
-        {
-
-        }
+        {}
 
         /// <summary>
         /// Anothe private method

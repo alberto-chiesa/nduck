@@ -128,7 +128,13 @@ Usage:
                 .Add("s|silent", "Reduces console output to a minimum.", v => Verbosity = Logger.OutputLevel.Error)
                 .Add("in=", "The {INPUT} assemblies to be documented.", v => Assemblies.Add(v))
                 .Add("o|out=", "The {OUTDIR} base folder for the generated files.", v => OutputPath = v)
-                ;
+                .Add("c|content=", "The {DIR} holding additional content files.", v => ContentDirectory = v)
+                .Add("p|prjfile=", "The json {FILE} holding the build configuration. Defaults to ./nduck.json.", v => ConfigurationFile = v);
+
+            ConfigurationFile = "nduck.json";
+            Assemblies = new List<string>();
+            OutputPath = "./nduck";
+            Verbosity = Logger.OutputLevel.Warning;
         }
 
         /// <summary>
@@ -138,6 +144,13 @@ Usage:
         {
             Parse(args);
         }
+
+        private static readonly Dictionary<string, ExecutionCommand> ExecutionCommands = new Dictionary<string, ExecutionCommand>()
+        {
+            {ExecutionCommand.Build.ToString().ToLowerInvariant(), ExecutionCommand.Build},
+            {ExecutionCommand.Init.ToString().ToLowerInvariant(), ExecutionCommand.Init},
+            {ExecutionCommand.Help.ToString().ToLowerInvariant(), ExecutionCommand.Help}
+        };
 
         /// <summary>
         /// Parses the command line arguments array and loads the
@@ -157,15 +170,40 @@ Usage:
             {
                 var additionalOptions = _cmdOptions.Parse(args);
 
+                ReadCommandFromPrompt(additionalOptions);
                 //if (additionalInFiles != null && additionalInFiles.Count > 0)
                 //    InFiles.AddRange(additionalInFiles);
             }
             catch (OptionException e)
             {
+                HasErrors = true;
                 Logger.Error("There was an error parsing command line arguments: {0}.", e.Message);
-
                 Logger.WriteLine(@"Try `{0} --help` for more information.", typeof(ExecutionOptions).Assembly.FullName);
             }
+        }
+
+        private void ReadCommandFromPrompt(List<string> additionalOptions)
+        {
+            if (additionalOptions == null || additionalOptions.Count < 1)
+            {
+                HasErrors = true;
+                Message = String.Format("No command was specified. Available commands are:\n   {0}",
+                    String.Join("\n", ExecutionCommands.Keys.Select(s => "   " + s)));
+                return;
+            }
+            
+            var cmd = additionalOptions[0].ToLowerInvariant();
+            if (!ExecutionCommands.ContainsKey(cmd))
+            {
+                HasErrors = true;
+                Message = String.Format("The requested command '{0}' could not be found. Available commands are:\n   {1}",
+                    cmd,
+                    String.Join("\n", ExecutionCommands.Keys.Select(s => "   " + s)));
+
+                return;
+            }
+
+            Command = ExecutionCommands[cmd];
         }
 
         /// <summary>
@@ -209,6 +247,7 @@ Usage:
             try
             {
                 var settings = new JsonSerializerSettings();
+
                 return JsonConvert.DeserializeObject<ExecutionOptions>(json, settings);
             }
             catch (Exception e)
