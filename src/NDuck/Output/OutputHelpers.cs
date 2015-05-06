@@ -26,9 +26,73 @@ namespace NDuck.Output
         /// An unindented string representation, with every doc tag
         /// replaced with a corresponding representation.
         /// </returns>
-        public static String StripDocTags(this XElement tag)
+        public static String XmlDocToMd(this XElement tag)
         {
-            return null;
+            if (tag == null) throw new ArgumentNullException("tag");
+
+            try
+            {
+                var prefix = FindPrefix(tag.SplitLines()) ?? string.Empty;
+
+                foreach (var el in tag.Elements())
+                    ProcessXmlDocElement(el, prefix);
+
+                return Unprefix(tag, prefix);
+            }
+            catch (Exception e)
+            {
+                var msg = String.Format("There was an error while converting an xml doc tag to MarkDown: {0}",
+                    e.Message);
+                throw new InvalidOperationException(msg, e);
+            }
+        }
+
+        /// <summary>
+        /// This method selects the appropriate conversion for every
+        /// known xml doc tag into the corresponding markdown
+        /// representation.
+        /// </summary>
+        /// <param name="el"></param>
+        /// <param name="prefix"></param>
+        /// <remarks>
+        /// Please note that the xml element is replaced with the corresponding MD.
+        /// </remarks>
+        private static void ProcessXmlDocElement(XElement el, string prefix)
+        {
+            Object newEl;
+            
+            switch (el.Name.LocalName)
+            {
+                case "c":
+                    newEl = ReplaceCNode(el);
+                    break;
+                case "code":
+                    newEl = ReplaceCodeNode(el, prefix);
+                    break;
+                default:
+                    newEl = Unprefix(el, prefix);
+                    break;
+            }
+
+            el.ReplaceWith(newEl ?? String.Empty);
+        }
+
+        private static string ReplaceCodeNode(XElement el, string prefix)
+        {
+            var snippet = Unprefix(el, prefix);
+
+            if (String.IsNullOrEmpty(snippet)) return String.Empty;
+
+            return String.Concat("```",
+                (snippet.StartsWith("\r") || snippet.StartsWith("\n")) ? "" : "\n",
+                snippet,
+                (snippet.EndsWith("\r") || snippet.EndsWith("\n")) ? "" : "\n",
+                "```");
+        }
+
+        private static String ReplaceCNode(XElement el)
+        {
+            return "__" + el.Value + "__";
         }
 
         private static readonly Regex RowSplit = new Regex("\r\n|\r|\n");
@@ -46,14 +110,48 @@ namespace NDuck.Output
         {
             if (xml == null) return null;
 
-            var lines = RowSplit.Split(xml.Value).SkipWhile(String.IsNullOrEmpty).ToArray();
+            var lines = xml.SplitLines();
 
-            var prefix = FindPrefix(lines) ?? string.Empty;
+            return Unprefix(lines, FindPrefix(lines));
+        }
+
+        private static string[] SplitLines(this XElement xml)
+        {
+            return RowSplit.Split(xml.Value).SkipWhile(String.IsNullOrEmpty).ToArray();
+        }
+
+        /// <summary>
+        /// Strips a common prefix from an xml element content.
+        /// </summary>
+        /// <param name="el"></param>
+        /// <param name="prefix"></param>
+        /// <returns>
+        /// The un-prefixed content of the element.
+        /// </returns>
+        private static String Unprefix(XElement el, string prefix)
+        {
+            return Unprefix(el.SplitLines(), prefix);
+        }
+
+        /// <summary>
+        /// Strips a common prefix from an array of text lines.
+        /// </summary>
+        /// <param name="lines"></param>
+        /// <param name="prefix"></param>
+        /// <returns>
+        /// The concatenation of the un-prefixed lines.
+        /// </returns>
+        private static string Unprefix(string[] lines, string prefix)
+        {
+            if (prefix == null) prefix = String.Empty;
+
+            var unprefixedLines = lines.Select(s => s.StartsWith(prefix) ? s.Substring(prefix.Length) : s);
 
             // do not return the last row, if it's only a prefix
-            return (lines[lines.Length - 1] == prefix) ?
-                String.Join("\n", lines.Take(lines.Length - 1).Select(s => s.Substring(prefix.Length))) :
-                String.Join("\n", lines.Select(s => s.Substring(prefix.Length)));
+            if (lines[lines.Length - 1].Trim() == String.Empty)
+                unprefixedLines = unprefixedLines.Take(lines.Length - 1);
+
+            return String.Join("\n", unprefixedLines);
         }
 
         /// <summary>
@@ -72,7 +170,8 @@ namespace NDuck.Output
             {
                 if (prefix == null)
                 {
-                    prefix = linePrefix;
+                    // this check skips initial lines.
+                    if (!String.IsNullOrEmpty(linePrefix)) prefix = linePrefix;
                 }
                 else if (prefix.Length < linePrefix.Length)
                 {
@@ -94,7 +193,9 @@ namespace NDuck.Output
 
         private static IEnumerable<string> ExtractIndentationWhitespace(string[] lines)
         {
-            return lines.Select(line => IndentWhiteSpace.Match(line))
+            return lines
+                .Where(s => s.Trim() != String.Empty)
+                .Select(line => IndentWhiteSpace.Match(line))
                 .Select(m => m.Success ? m.Value : String.Empty);
         }
     }

@@ -74,6 +74,7 @@
     <Compile Include="Data\TypeDataTest.cs" />
     <Compile Include="Output\JsOutputTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestClasses\CommentsExamples.cs" />
     <Compile Include="TestClasses\Enum1.cs" />
     <Compile Include="TestClasses\InternalType1.cs" />
     <Compile Include="TestClasses\IPublic1.cs" />
