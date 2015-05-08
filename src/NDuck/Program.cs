@@ -11,7 +11,9 @@ namespace NDuck
         {
             _Main(args);
 
+#if DEBUG
             StopWhenDebugging();
+#endif
         }
 
         private static void _Main(string[] args)
@@ -40,16 +42,16 @@ namespace NDuck
             }
         }
 
+#if DEBUG
         private static void StopWhenDebugging()
         {
-#if DEBUG
             if (System.Diagnostics.Debugger.IsAttached)
             {
                 Console.Write(@"Press return to close.");
                 Console.ReadLine();
             }
-#endif
         }
+#endif
 
         /// <summary>
         /// Reads the execution options from the
